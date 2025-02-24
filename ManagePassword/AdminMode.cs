@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics.Eventing.Reader;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -12,38 +13,36 @@ namespace ManagePassword
 {
     public partial class AdminMode : Form
     {
-        public bool isAdmin {  get; set; }
-        const string PASSWORD = "291305";
+        public bool isAdmin { get; set; }
         ManagePassword mp_dialog;
+        //AdmMode adm_mode;
         public AdminMode(ManagePassword parent)
         {
             InitializeComponent();
-            mp_dialog = parent; 
+            mp_dialog = parent;
         }
 
         private void btnEnterToAdminMode_Click(object sender, EventArgs e)
         {
-            if (tbAdmin.Text == PASSWORD)
+            if (AdmMode.beAdm(tbAdmin.Text))
             {
-                isAdmin = true;
                 mp_dialog.Refresh();
                 tbAdmin.Clear();
                 this.Close();
             }
             else
-            {
-                MessageBox.Show("Incorrect!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+                MessageBox.Show("Error!");
+
         }
 
         private void btnExit_Click(object sender, EventArgs e)
         {
-            if(isAdmin)
+            if (isAdmin)
             {
                 isAdmin = false;
                 mp_dialog.Refresh();
             }
-                this.Close();
+            this.Close();
         }
 
         private void btnClose_Click(object sender, EventArgs e)

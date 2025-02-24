@@ -46,21 +46,21 @@
             this.tbsecretFind = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
+            this.btnFind = new System.Windows.Forms.Button();
             this.tbopenFind = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
-            this.btnFind = new System.Windows.Forms.Button();
             this.btnRefresh = new System.Windows.Forms.Button();
             this.panel4 = new System.Windows.Forms.Panel();
+            this.btnSelect = new System.Windows.Forms.Button();
             this.label10 = new System.Windows.Forms.Label();
+            this.btnChange = new System.Windows.Forms.Button();
             this.tbChangeSecret = new System.Windows.Forms.TextBox();
             this.tbChangeOpen = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.tbChangeid = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
-            this.btnChange = new System.Windows.Forms.Button();
             this.btnInfo = new System.Windows.Forms.Button();
-            this.btnSelect = new System.Windows.Forms.Button();
             this.btnAdmMode = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvDB)).BeginInit();
             this.panel1.SuspendLayout();
@@ -116,20 +116,20 @@
             // lblOS
             // 
             this.lblOS.AutoSize = true;
-            this.lblOS.Location = new System.Drawing.Point(8, 40);
+            this.lblOS.Location = new System.Drawing.Point(23, 43);
             this.lblOS.Name = "lblOS";
-            this.lblOS.Size = new System.Drawing.Size(58, 13);
+            this.lblOS.Size = new System.Drawing.Size(43, 13);
             this.lblOS.TabIndex = 5;
-            this.lblOS.Text = "openString";
+            this.lblOS.Text = "Service";
             // 
             // lblSS
             // 
             this.lblSS.AutoSize = true;
-            this.lblSS.Location = new System.Drawing.Point(3, 66);
+            this.lblSS.Location = new System.Drawing.Point(13, 66);
             this.lblSS.Name = "lblSS";
-            this.lblSS.Size = new System.Drawing.Size(63, 13);
+            this.lblSS.Size = new System.Drawing.Size(53, 13);
             this.lblSS.TabIndex = 6;
-            this.lblSS.Text = "secretString";
+            this.lblSS.Text = "Password";
             // 
             // panel1
             // 
@@ -227,11 +227,21 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(2, 63);
+            this.label5.Location = new System.Drawing.Point(13, 63);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(63, 13);
+            this.label5.Size = new System.Drawing.Size(53, 13);
             this.label5.TabIndex = 12;
-            this.label5.Text = "secretString";
+            this.label5.Text = "Password";
+            // 
+            // btnFind
+            // 
+            this.btnFind.Location = new System.Drawing.Point(65, 86);
+            this.btnFind.Name = "btnFind";
+            this.btnFind.Size = new System.Drawing.Size(289, 23);
+            this.btnFind.TabIndex = 11;
+            this.btnFind.Text = "Find";
+            this.btnFind.UseVisualStyleBackColor = true;
+            this.btnFind.Click += new System.EventHandler(this.btnFind_Click);
             // 
             // tbopenFind
             // 
@@ -243,21 +253,11 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(7, 37);
+            this.label6.Location = new System.Drawing.Point(21, 40);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(58, 13);
+            this.label6.Size = new System.Drawing.Size(43, 13);
             this.label6.TabIndex = 11;
-            this.label6.Text = "openString";
-            // 
-            // btnFind
-            // 
-            this.btnFind.Location = new System.Drawing.Point(65, 86);
-            this.btnFind.Name = "btnFind";
-            this.btnFind.Size = new System.Drawing.Size(289, 23);
-            this.btnFind.TabIndex = 11;
-            this.btnFind.Text = "Find";
-            this.btnFind.UseVisualStyleBackColor = true;
-            this.btnFind.Click += new System.EventHandler(this.btnFind_Click);
+            this.label6.Text = "Service";
             // 
             // btnRefresh
             // 
@@ -286,14 +286,34 @@
             this.panel4.Size = new System.Drawing.Size(358, 179);
             this.panel4.TabIndex = 13;
             // 
+            // btnSelect
+            // 
+            this.btnSelect.Location = new System.Drawing.Point(66, 64);
+            this.btnSelect.Name = "btnSelect";
+            this.btnSelect.Size = new System.Drawing.Size(288, 26);
+            this.btnSelect.TabIndex = 15;
+            this.btnSelect.Text = "Select";
+            this.btnSelect.UseVisualStyleBackColor = true;
+            this.btnSelect.Click += new System.EventHandler(this.btnSelect_Click);
+            // 
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(44, 41);
+            this.label10.Location = new System.Drawing.Point(49, 41);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(15, 13);
             this.label10.TabIndex = 14;
             this.label10.Text = "id";
+            // 
+            // btnChange
+            // 
+            this.btnChange.Location = new System.Drawing.Point(67, 148);
+            this.btnChange.Name = "btnChange";
+            this.btnChange.Size = new System.Drawing.Size(287, 26);
+            this.btnChange.TabIndex = 14;
+            this.btnChange.Text = "Change";
+            this.btnChange.UseVisualStyleBackColor = true;
+            this.btnChange.Click += new System.EventHandler(this.btnChange_Click);
             // 
             // tbChangeSecret
             // 
@@ -322,11 +342,11 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(3, 125);
+            this.label8.Location = new System.Drawing.Point(13, 125);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(63, 13);
+            this.label8.Size = new System.Drawing.Size(53, 13);
             this.label8.TabIndex = 12;
-            this.label8.Text = "secretString";
+            this.label8.Text = "Password";
             // 
             // tbChangeid
             // 
@@ -338,21 +358,11 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(8, 99);
+            this.label9.Location = new System.Drawing.Point(23, 99);
             this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(58, 13);
+            this.label9.Size = new System.Drawing.Size(43, 13);
             this.label9.TabIndex = 11;
-            this.label9.Text = "openString";
-            // 
-            // btnChange
-            // 
-            this.btnChange.Location = new System.Drawing.Point(67, 148);
-            this.btnChange.Name = "btnChange";
-            this.btnChange.Size = new System.Drawing.Size(287, 26);
-            this.btnChange.TabIndex = 14;
-            this.btnChange.Text = "Change";
-            this.btnChange.UseVisualStyleBackColor = true;
-            this.btnChange.Click += new System.EventHandler(this.btnChange_Click);
+            this.label9.Text = "Service";
             // 
             // btnInfo
             // 
@@ -363,16 +373,6 @@
             this.btnInfo.Text = "Info";
             this.btnInfo.UseVisualStyleBackColor = true;
             this.btnInfo.Click += new System.EventHandler(this.btnInfo_Click);
-            // 
-            // btnSelect
-            // 
-            this.btnSelect.Location = new System.Drawing.Point(66, 64);
-            this.btnSelect.Name = "btnSelect";
-            this.btnSelect.Size = new System.Drawing.Size(288, 26);
-            this.btnSelect.TabIndex = 15;
-            this.btnSelect.Text = "Select";
-            this.btnSelect.UseVisualStyleBackColor = true;
-            this.btnSelect.Click += new System.EventHandler(this.btnSelect_Click);
             // 
             // btnAdmMode
             // 

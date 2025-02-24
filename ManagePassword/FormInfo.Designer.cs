@@ -48,30 +48,30 @@
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(12, 9);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(584, 13);
+            this.label1.Size = new System.Drawing.Size(559, 13);
             this.label1.TabIndex = 0;
-            this.label1.Text = "1. For Insert some colum in DataBase \"Passwords\" in panel Add in text boxes openS" +
-    "tring and secretString type some string";
+            this.label1.Text = "1. For Insert some colum in DataBase \"Passwords\" in panel Add in text boxes Servi" +
+    "ce and Password type some string";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(12, 38);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(555, 13);
+            this.label2.Size = new System.Drawing.Size(530, 13);
             this.label2.TabIndex = 1;
-            this.label2.Text = "2. For Find colum in DataBase \"Passwords\" in panel Find in text boxes openString " +
-    "or secretString type required string";
+            this.label2.Text = "2. For Find colum in DataBase \"Passwords\" in panel Find in text boxes Service or " +
+    "Password type required string";
             // 
             // label3
             // 
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(12, 64);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(676, 13);
+            this.label3.Size = new System.Drawing.Size(651, 13);
             this.label3.TabIndex = 2;
             this.label3.Text = "3. For Change colum in DataBase \"Passwords\" in panel Select And Change in text bo" +
-    "xes id and openString or secretString type required string";
+    "xes id and Service or Password type required string";
             // 
             // label4
             // 
@@ -87,27 +87,27 @@
             this.label5.AutoSize = true;
             this.label5.Location = new System.Drawing.Point(23, 102);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(297, 13);
+            this.label5.Size = new System.Drawing.Size(272, 13);
             this.label5.TabIndex = 4;
-            this.label5.Text = "3.3. You can stay empty text boxes openString or secretString";
+            this.label5.Text = "3.3. You can stay empty text boxes Service or Password";
             // 
             // label6
             // 
             this.label6.AutoSize = true;
             this.label6.Location = new System.Drawing.Point(23, 22);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(324, 13);
+            this.label6.Size = new System.Drawing.Size(299, 13);
             this.label6.TabIndex = 5;
-            this.label6.Text = "1.1. You don`t can stay empty text boxes openString or secretString";
+            this.label6.Text = "1.1. You don`t can stay empty text boxes Service or Password";
             // 
             // label7
             // 
             this.label7.AutoSize = true;
             this.label7.Location = new System.Drawing.Point(23, 51);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(297, 13);
+            this.label7.Size = new System.Drawing.Size(272, 13);
             this.label7.TabIndex = 6;
-            this.label7.Text = "2.1. You can stay empty text boxes openString or secretString";
+            this.label7.Text = "2.1. You can stay empty text boxes Service or Password";
             // 
             // label8
             // 
@@ -161,10 +161,10 @@
             this.label13.AutoSize = true;
             this.label13.Location = new System.Drawing.Point(12, 167);
             this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(497, 13);
+            this.label13.Size = new System.Drawing.Size(483, 13);
             this.label13.TabIndex = 13;
             this.label13.Text = "7. Button \"Admin Mode\" for enter in Admin mod and you will see and have access co" +
-    "lumn \'secret_string\'";
+    "lumn \'Password\'";
             // 
             // FormInfo
             // 
