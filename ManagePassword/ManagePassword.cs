@@ -15,11 +15,11 @@ namespace ManagePassword
     {
         SqlQueries sqlQueries = null;
         FormInfo formInfo_dialog = null;
-        AdminMode adminMode_dialog = null;
+        AdminForm adminMode_dialog = null;
         public ManagePassword()
         {
             InitializeComponent();
-            adminMode_dialog = new AdminMode(this);
+            adminMode_dialog = new AdminForm(this);
             this.CenterToScreen();
             sqlQueries = new SqlQueries();
             Refresh();
@@ -33,7 +33,7 @@ namespace ManagePassword
                 tbAddsecret.Clear();
                 Refresh();
             }
-            else 
+            else
             {
                 MessageBox.Show("text boxes Service and/or Password is never equal null!", "Waring", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
@@ -41,11 +41,11 @@ namespace ManagePassword
 
         private void btnFind_Click(object sender, EventArgs e)
         {
-            if(tbopenFind.Text != "" || tbsecretFind.Text != "")
+            if (tbopenFind.Text != "" || tbsecretFind.Text != "")
             {
-            dgvDB.DataSource = sqlQueries.FindAdm(tbopenFind.Text, tbsecretFind.Text);
-            tbopenFind.Clear();
-            tbsecretFind.Clear();
+                dgvDB.DataSource = sqlQueries.Find(tbopenFind.Text, tbsecretFind.Text);
+                tbopenFind.Clear();
+                tbsecretFind.Clear();
             }
         }
 
@@ -61,28 +61,17 @@ namespace ManagePassword
             Refresh();
         }
         public void Refresh()
-        { 
-          dgvDB.DataSource = sqlQueries.Refresh();  
+        {
+            dgvDB.DataSource = sqlQueries.Refresh();
         }
         private void btnChange_Click(object sender, EventArgs e)
         {
-            
-                if (tbChangeid.Text == "")
-                {
-                    MessageBox.Show("Select the column", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }
-                else
-                {
-                    if (tbChangeOpen.Text == "" || tbChangeSecret.Text == "")
-                    {
-                        CheckSelect();
-                    }
-                    sqlQueries.Change(tbChangeOpen.Text, tbChangeSecret.Text, tbChangeid.Text); //UPDATE
-                    tbChangeOpen.Clear();
-                    tbChangeSecret.Clear();
-                    tbChangeid.Clear();
-                    Refresh();
-                }
+            CheckSelect();
+            sqlQueries.Change(tbChangeOpen.Text, tbChangeSecret.Text, dgvDB.CurrentRow.Cells[0].Value.ToString()); //UPDATE
+            tbChangeOpen.Clear();
+            tbChangeSecret.Clear();
+            lblSelectedId.Text = "Selected id: ";
+            Refresh();
         }
 
         private void btnInfo_Click(object sender, EventArgs e)
@@ -96,31 +85,25 @@ namespace ManagePassword
                 );
             formInfo_dialog.Show();
         }
-
-        private void btnSelect_Click(object sender, EventArgs e)
-        {
-
-                if (tbChangeid.Text == "")
-                {
-                    MessageBox.Show("text box 'id' is never equal null", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }
-                if (tbChangeOpen.Text == "" || tbChangeSecret.Text == "")
-                {
-                    dgvDB.DataSource = sqlQueries.Select(tbChangeid.Text);
-                    CheckSelect();
-                }
-        }
         public void CheckSelect()
         {
-            dgvDB.Columns[0].Selected = true;
-            string open_str = tbChangeOpen.Text == "" ? dgvDB.Rows[0].Cells[1].Value.ToString() : tbChangeOpen.Text;
-            string secret_str = tbChangeSecret.Text == "" ? dgvDB.Rows[0].Cells[2].Value.ToString() : tbChangeSecret.Text;
-            tbChangeSecret.Text = secret_str;
-            tbChangeOpen.Text = open_str;
+            try
+            {
+                lblSelectedId.Text += dgvDB.CurrentRow.Cells[0].Value.ToString();
+                dgvDB.Rows[dgvDB.CurrentCellAddress.Y].Selected = true;
+                string open_str = tbChangeOpen.Text == "" ? dgvDB.Rows[dgvDB.CurrentCellAddress.Y].Cells[1].Value.ToString() : tbChangeOpen.Text;
+                string secret_str = tbChangeSecret.Text == "" ? dgvDB.Rows[dgvDB.CurrentCellAddress.Y].Cells[2].Value.ToString() : tbChangeSecret.Text;
+                tbChangeSecret.Text = secret_str;
+                tbChangeOpen.Text = open_str;
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("You are not in Admin mode and you don't have access in column 'Password'", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
         private void btnAdmMode_Click(object sender, EventArgs e)
         {
-            adminMode_dialog = new AdminMode(this);
+            adminMode_dialog = new AdminForm(this);
             adminMode_dialog.StartPosition = FormStartPosition.Manual;
             adminMode_dialog.Location = new Point
                 (
@@ -129,6 +112,13 @@ namespace ManagePassword
                 );
             adminMode_dialog.Show();
             Refresh();
+        }
+
+        private void dgvDB_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            lblSelectedId.Text = "Selected id: ";
+            sqlQueries.Select(dgvDB, tbChangeOpen, tbChangeSecret);
+            CheckSelect();
         }
     }
 }

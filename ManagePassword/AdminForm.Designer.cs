@@ -1,6 +1,6 @@
 ﻿namespace ManagePassword
 {
-    partial class AdminMode
+    partial class AdminForm
     {
         /// <summary>
         /// Required designer variable.

@@ -51,14 +51,12 @@
             this.label6 = new System.Windows.Forms.Label();
             this.btnRefresh = new System.Windows.Forms.Button();
             this.panel4 = new System.Windows.Forms.Panel();
-            this.btnSelect = new System.Windows.Forms.Button();
-            this.label10 = new System.Windows.Forms.Label();
+            this.lblSelectedId = new System.Windows.Forms.Label();
             this.btnChange = new System.Windows.Forms.Button();
             this.tbChangeSecret = new System.Windows.Forms.TextBox();
             this.tbChangeOpen = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
-            this.tbChangeid = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
             this.btnInfo = new System.Windows.Forms.Button();
             this.btnAdmMode = new System.Windows.Forms.Button();
@@ -76,7 +74,7 @@
             this.dgvDB.GridColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.dgvDB.Location = new System.Drawing.Point(12, 12);
             this.dgvDB.Name = "dgvDB";
-            this.dgvDB.Size = new System.Drawing.Size(338, 508);
+            this.dgvDB.Size = new System.Drawing.Size(338, 509);
             this.dgvDB.TabIndex = 0;
             // 
             // btnAdd
@@ -162,7 +160,7 @@
             this.panel2.Controls.Add(this.tbDelid);
             this.panel2.Controls.Add(this.label4);
             this.panel2.Controls.Add(this.btnDelete);
-            this.panel2.Location = new System.Drawing.Point(357, 448);
+            this.panel2.Location = new System.Drawing.Point(357, 419);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(87, 73);
             this.panel2.TabIndex = 8;
@@ -261,9 +259,9 @@
             // 
             // btnRefresh
             // 
-            this.btnRefresh.Location = new System.Drawing.Point(450, 498);
+            this.btnRefresh.Location = new System.Drawing.Point(357, 498);
             this.btnRefresh.Name = "btnRefresh";
-            this.btnRefresh.Size = new System.Drawing.Size(265, 23);
+            this.btnRefresh.Size = new System.Drawing.Size(358, 23);
             this.btnRefresh.TabIndex = 12;
             this.btnRefresh.Text = "Refresh";
             this.btnRefresh.UseVisualStyleBackColor = true;
@@ -272,42 +270,31 @@
             // panel4
             // 
             this.panel4.BackColor = System.Drawing.Color.Gold;
-            this.panel4.Controls.Add(this.btnSelect);
-            this.panel4.Controls.Add(this.label10);
+            this.panel4.Controls.Add(this.lblSelectedId);
             this.panel4.Controls.Add(this.btnChange);
             this.panel4.Controls.Add(this.tbChangeSecret);
             this.panel4.Controls.Add(this.tbChangeOpen);
             this.panel4.Controls.Add(this.label7);
             this.panel4.Controls.Add(this.label8);
-            this.panel4.Controls.Add(this.tbChangeid);
             this.panel4.Controls.Add(this.label9);
             this.panel4.Location = new System.Drawing.Point(357, 263);
             this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(358, 179);
+            this.panel4.Size = new System.Drawing.Size(358, 148);
             this.panel4.TabIndex = 13;
             // 
-            // btnSelect
+            // lblSelectedId
             // 
-            this.btnSelect.Location = new System.Drawing.Point(66, 64);
-            this.btnSelect.Name = "btnSelect";
-            this.btnSelect.Size = new System.Drawing.Size(288, 26);
-            this.btnSelect.TabIndex = 15;
-            this.btnSelect.Text = "Select";
-            this.btnSelect.UseVisualStyleBackColor = true;
-            this.btnSelect.Click += new System.EventHandler(this.btnSelect_Click);
-            // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(49, 41);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(15, 13);
-            this.label10.TabIndex = 14;
-            this.label10.Text = "id";
+            this.lblSelectedId.AutoSize = true;
+            this.lblSelectedId.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.lblSelectedId.Location = new System.Drawing.Point(11, 35);
+            this.lblSelectedId.Name = "lblSelectedId";
+            this.lblSelectedId.Size = new System.Drawing.Size(132, 26);
+            this.lblSelectedId.TabIndex = 14;
+            this.lblSelectedId.Text = "Selected id: ";
             // 
             // btnChange
             // 
-            this.btnChange.Location = new System.Drawing.Point(67, 148);
+            this.btnChange.Location = new System.Drawing.Point(66, 114);
             this.btnChange.Name = "btnChange";
             this.btnChange.Size = new System.Drawing.Size(287, 26);
             this.btnChange.TabIndex = 14;
@@ -317,14 +304,14 @@
             // 
             // tbChangeSecret
             // 
-            this.tbChangeSecret.Location = new System.Drawing.Point(66, 122);
+            this.tbChangeSecret.Location = new System.Drawing.Point(66, 88);
             this.tbChangeSecret.Name = "tbChangeSecret";
             this.tbChangeSecret.Size = new System.Drawing.Size(288, 20);
             this.tbChangeSecret.TabIndex = 13;
             // 
             // tbChangeOpen
             // 
-            this.tbChangeOpen.Location = new System.Drawing.Point(66, 96);
+            this.tbChangeOpen.Location = new System.Drawing.Point(65, 64);
             this.tbChangeOpen.Name = "tbChangeOpen";
             this.tbChangeOpen.Size = new System.Drawing.Size(288, 20);
             this.tbChangeOpen.TabIndex = 10;
@@ -342,23 +329,16 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(13, 125);
+            this.label8.Location = new System.Drawing.Point(13, 91);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(53, 13);
             this.label8.TabIndex = 12;
             this.label8.Text = "Password";
             // 
-            // tbChangeid
-            // 
-            this.tbChangeid.Location = new System.Drawing.Point(65, 38);
-            this.tbChangeid.Name = "tbChangeid";
-            this.tbChangeid.Size = new System.Drawing.Size(288, 20);
-            this.tbChangeid.TabIndex = 9;
-            // 
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(23, 99);
+            this.label9.Location = new System.Drawing.Point(23, 67);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(43, 13);
             this.label9.TabIndex = 11;
@@ -366,9 +346,9 @@
             // 
             // btnInfo
             // 
-            this.btnInfo.Location = new System.Drawing.Point(450, 448);
+            this.btnInfo.Location = new System.Drawing.Point(450, 419);
             this.btnInfo.Name = "btnInfo";
-            this.btnInfo.Size = new System.Drawing.Size(127, 44);
+            this.btnInfo.Size = new System.Drawing.Size(127, 73);
             this.btnInfo.TabIndex = 15;
             this.btnInfo.Text = "Info";
             this.btnInfo.UseVisualStyleBackColor = true;
@@ -376,9 +356,9 @@
             // 
             // btnAdmMode
             // 
-            this.btnAdmMode.Location = new System.Drawing.Point(583, 448);
+            this.btnAdmMode.Location = new System.Drawing.Point(580, 419);
             this.btnAdmMode.Name = "btnAdmMode";
-            this.btnAdmMode.Size = new System.Drawing.Size(132, 44);
+            this.btnAdmMode.Size = new System.Drawing.Size(132, 73);
             this.btnAdmMode.TabIndex = 16;
             this.btnAdmMode.Text = "Admin Mode";
             this.btnAdmMode.UseVisualStyleBackColor = true;
@@ -397,7 +377,7 @@
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.dgvDB);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "ManagePassword";
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
@@ -439,16 +419,14 @@
         private System.Windows.Forms.Button btnFind;
         private System.Windows.Forms.Button btnRefresh;
         private System.Windows.Forms.Panel panel4;
-        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.Label lblSelectedId;
         private System.Windows.Forms.TextBox tbChangeSecret;
         private System.Windows.Forms.TextBox tbChangeOpen;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.TextBox tbChangeid;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Button btnChange;
         private System.Windows.Forms.Button btnInfo;
-        private System.Windows.Forms.Button btnSelect;
         private System.Windows.Forms.Button btnAdmMode;
     }
 }

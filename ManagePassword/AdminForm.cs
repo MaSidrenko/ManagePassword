@@ -11,12 +11,10 @@ using System.Windows.Forms;
 
 namespace ManagePassword
 {
-    public partial class AdminMode : Form
+    public partial class AdminForm : Form
     {
-        public bool isAdmin { get; set; }
         ManagePassword mp_dialog;
-        //AdmMode adm_mode;
-        public AdminMode(ManagePassword parent)
+        public AdminForm(ManagePassword parent)
         {
             InitializeComponent();
             mp_dialog = parent;
@@ -37,9 +35,9 @@ namespace ManagePassword
 
         private void btnExit_Click(object sender, EventArgs e)
         {
-            if (isAdmin)
+            if (AdmMode.isAdm)
             {
-                isAdmin = false;
+                AdmMode.isAdm = false;
                 mp_dialog.Refresh();
             }
             this.Close();

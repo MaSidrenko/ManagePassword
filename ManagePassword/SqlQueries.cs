@@ -23,7 +23,7 @@ namespace ManagePassword
             else
                 return circle_query("SELECT id, open_string AS \"Service\" FROM \"Passwords\"");
         }
-        public DataTable FindAdm(string tb_find_open, string tb_find_secret)
+        public DataTable Find(string tb_find_open, string tb_find_secret)
         {
             if (AdmMode.isAdm)
             {
@@ -47,21 +47,16 @@ namespace ManagePassword
         {
             if (AdmMode.isAdm)
                 single_query($"CALL UpdatePasswords('{tb_change_open}', '{tb_change_secret}', '{tb_change_id}')");
-            else if(!AdmMode.isAdm)
-                MessageBox.Show("You are not in Admin mode and you don't have access in column 'Password'", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
-        public DataTable Select(string tb_change_id)
+        public void Select(DataGridView dgv, TextBox tb_select_open, TextBox tb_select_secret)
         {
-            DataTable dt = new DataTable();
             if (AdmMode.isAdm)
             {
-                dt = circle_query($"SELECT id, open_string AS \"Service\", secret_string AS \"Password\" FROM \"Passwords\" WHERE \"id\" = '{tb_change_id}'");
-                return dt;
-            }
-            else
-            {
-                MessageBox.Show("You are not in Admin mode and you don't have access in column 'Password'", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return Refresh();
+                if (dgv.CurrentCell.ColumnIndex == 0 || dgv.CurrentCell.ColumnIndex == 1 || dgv.CurrentCell.ColumnIndex == 2)
+                {
+                    tb_select_open.Text = dgv.CurrentRow.Cells[1].Value.ToString();
+                    tb_select_secret.Text = dgv.CurrentRow.Cells[2].Value.ToString();
+                }
             }
         }
         public DataTable circle_query(string query)
