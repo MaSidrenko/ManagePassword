@@ -14,14 +14,17 @@ namespace ManagePassword
     public partial class AdminForm : Form
     {
         ManagePassword mp_dialog;
+        CreatePasswordForm CPF_dialog;
         public AdminForm(ManagePassword parent)
         {
             InitializeComponent();
             mp_dialog = parent;
+            CPF_dialog = new CreatePasswordForm();
         }
 
         private void btnEnterToAdminMode_Click(object sender, EventArgs e)
         {
+            AdmMode.hasPassword();
             if (AdmMode.beAdm(tbAdmin.Text))
             {
                 mp_dialog.Refresh();
@@ -29,8 +32,9 @@ namespace ManagePassword
                 this.Close();
             }
             else
+            {
                 MessageBox.Show("Error!");
-
+            }            
         }
 
         private void btnExit_Click(object sender, EventArgs e)

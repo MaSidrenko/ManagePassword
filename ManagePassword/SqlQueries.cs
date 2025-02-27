@@ -16,12 +16,18 @@ namespace ManagePassword
         {
             single_query($"CALL insertPasswords('{tb_insert_open}','{tb_insert_secret}')");
         }
+        public DataTable Find_adm_Password(string Password)
+        {
+            return circle_query($"SELECT adm_string FROM \"Admin\" WHERE \"adm_string\" = '{Password}'");
+        }
+
+        public void Registr_admin(string Password)
+        {
+            single_query($"INSERT INTO \"Admin\" (adm_string) VALUES ({Password})");
+        }
         public DataTable Refresh()
         {
-            if (AdmMode.isAdm)
-                return circle_query("SELECT id, open_string AS \"Service\", secret_string AS \"Password\" FROM \"Passwords\"");
-            else
-                return circle_query("SELECT id, open_string AS \"Service\" FROM \"Passwords\"");
+            return circle_query(AdmMode.isAdm ? "SELECT id, open_string AS \"Service\", secret_string AS \"Password\" FROM \"Passwords\"" : "SELECT id, open_string AS \"Service\" FROM \"Passwords\"");
         }
         public DataTable Find(string tb_find_open, string tb_find_secret)
         {
@@ -29,14 +35,18 @@ namespace ManagePassword
             {
                 return circle_query($"SELECT id, open_string AS \"Service\", secret_string AS \"Password\" FROM \"Passwords\" WHERE \"open_string\" = '{tb_find_open}' OR \"secret_string\" = '{tb_find_secret}'");
             }
-            else
+            else if(!AdmMode.isAdm) 
             {
                 if (tb_find_secret != "")
                 {
                     MessageBox.Show("You are not in Admin mode and you don't have access in column 'Password'", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 return circle_query($"SELECT id, open_string AS \"Service\" FROM \"Passwords\" WHERE \"open_string\" = '{tb_find_open}'");
-
+            }
+            else
+            {
+                MessageBox.Show("Unkown Error", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return Refresh();
             }
         }
         public void Del(string tb_del_id)

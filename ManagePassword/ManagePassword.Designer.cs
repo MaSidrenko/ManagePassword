@@ -76,6 +76,7 @@
             this.dgvDB.Name = "dgvDB";
             this.dgvDB.Size = new System.Drawing.Size(338, 509);
             this.dgvDB.TabIndex = 0;
+            this.dgvDB.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvDB_CellClick);
             // 
             // btnAdd
             // 

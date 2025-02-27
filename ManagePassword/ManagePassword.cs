@@ -99,6 +99,7 @@ namespace ManagePassword
             catch (Exception)
             {
                 MessageBox.Show("You are not in Admin mode and you don't have access in column 'Password'", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                lblSelectedId.Text = "Selected id: ";
             }
         }
         private void btnAdmMode_Click(object sender, EventArgs e)
@@ -113,7 +114,6 @@ namespace ManagePassword
             adminMode_dialog.Show();
             Refresh();
         }
-
         private void dgvDB_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             lblSelectedId.Text = "Selected id: ";
