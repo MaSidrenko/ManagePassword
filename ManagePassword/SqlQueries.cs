@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -16,7 +17,6 @@ namespace ManagePassword
         public void Insert(string tb_insert_open, string tb_insert_secret)
         {
             temp_cmd = new NpgsqlCommand($"CALL insertPasswords('{tb_insert_open}','{tb_insert_secret}')");
-            //single_query($"CALL insertPasswords('{tb_insert_open}','{tb_insert_secret}')");
             single_query(temp_cmd);
         }
         public DataTable Refresh()
@@ -35,7 +35,12 @@ namespace ManagePassword
                 {
                     MessageBox.Show("You are not in Admin mode and you don't have access in column 'Password'", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
+                if (tb_find_open != "")
+                {
                 return circle_query($"SELECT id, open_string AS \"Service\" FROM \"Passwords\" WHERE \"open_string\" = '{tb_find_open}'");
+
+                }
+                return Refresh();
             }
             else
             {
@@ -46,7 +51,6 @@ namespace ManagePassword
         public void Del(string tb_del_id)
         {
             temp_cmd = new NpgsqlCommand($"CALL deletepasswords('{tb_del_id}')");
-            //single_query($"CALL deletepasswords('{tb_del_id}')");
             single_query(temp_cmd);
         }
         public void Change(string tb_change_open, string tb_change_secret, string tb_change_id)
@@ -54,20 +58,8 @@ namespace ManagePassword
             if (AdmMode.isAdm)
             {
                 temp_cmd = new NpgsqlCommand($"CALL UpdatePasswords('{tb_change_open}', '{tb_change_secret}', '{tb_change_id}')");
-                //single_query($"CALL UpdatePasswords('{tb_change_open}', '{tb_change_secret}', '{tb_change_id}')");
                 single_query(temp_cmd);
 
-            }
-        }
-        public void Select(DataGridView dgv, TextBox tb_select_open, TextBox tb_select_secret)
-        {
-            if (AdmMode.isAdm)
-            {
-                if (dgv.CurrentCell.ColumnIndex == 0 || dgv.CurrentCell.ColumnIndex == 1 || dgv.CurrentCell.ColumnIndex == 2)
-                {
-                    tb_select_open.Text = dgv.CurrentRow.Cells[1].Value.ToString();
-                    tb_select_secret.Text = dgv.CurrentRow.Cells[2].Value.ToString();
-                }
             }
         }
         public DataTable circle_query(string query)
@@ -111,6 +103,27 @@ namespace ManagePassword
             {
                 MessageBox.Show(e.Message);
             }
+        }
+        public (byte[], string, byte[]) read_cihper_query(string query)
+        {
+            byte[] salt = null;
+            string pass_hash = null;
+            byte[] iv = null;
+            NpgsqlConnection conn_DB = new NpgsqlConnection(conn_str);
+            NpgsqlCommand cmd = new NpgsqlCommand(query, conn_DB);
+            conn_DB.Open();
+
+
+            NpgsqlDataReader reader = cmd.ExecuteReader();
+            if (reader.Read())
+            {
+               (salt, pass_hash, iv) = AdmMode.GetAutAdm(reader);
+            }
+            reader.Close();
+            cmd.Dispose();
+            conn_DB.Close();
+            conn_DB.Dispose();
+            return (salt, pass_hash, iv);
         }
     }
 }

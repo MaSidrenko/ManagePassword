@@ -10,18 +10,25 @@ using System.Windows.Forms;
 
 namespace ManagePassword
 {
-    public partial class CreatePasswordForm : Form
+    public partial class FormFind : Form
     {
-        public CreatePasswordForm()
+        SqlQueries sql;
+        DataGridView dgv;
+        public FormFind()
         {
             InitializeComponent();
+            sql = new SqlQueries();
         }
 
         private void btnOk_Click(object sender, EventArgs e)
         {
-            string password = tbCreatePassword.Text;
-            Cipher.SetPass(password);
-            AdmMode.RegistrAdm(password);
+            dgv.DataSource = sql.Find(tbFindService.Text, tbFindPassword.Text);
+            this.Close();
+        }
+        public object GetDVG(DataGridView temp_dgv)
+        {
+            dgv = temp_dgv;
+            return dgv.DataSource;
         }
 
         private void btnCancle_Click(object sender, EventArgs e)

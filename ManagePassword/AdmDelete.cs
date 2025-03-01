@@ -10,23 +10,25 @@ using System.Windows.Forms;
 
 namespace ManagePassword
 {
-    public partial class CreatePasswordForm : Form
+    public partial class AdmDelete : Form
     {
-        public CreatePasswordForm()
+        public AdmDelete()
         {
             InitializeComponent();
         }
 
         private void btnOk_Click(object sender, EventArgs e)
         {
-            string password = tbCreatePassword.Text;
-            Cipher.SetPass(password);
-            AdmMode.RegistrAdm(password);
+            if(AdmMode.isAdm)
+            {
+                AdmMode.DeleteAdm(tbDel.Text);
+                this.Close();
+            }
         }
 
         private void btnCancle_Click(object sender, EventArgs e)
         {
-            this.Close();
+            this.Close();   
         }
     }
 }

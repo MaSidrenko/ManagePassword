@@ -15,6 +15,7 @@ namespace ManagePassword
     {
         ManagePassword mp_dialog;
         CreatePasswordForm CPF_dialog;
+        AdmDelete admDelete_dialog;
         public AdminForm(ManagePassword parent)
         {
             InitializeComponent();
@@ -24,16 +25,21 @@ namespace ManagePassword
 
         private void btnEnterToAdminMode_Click(object sender, EventArgs e)
         {
-            //AdmMode.hasPassword();
-            //if (AdmMode.beAdm(tbAdmin.Text))
-            //{
-            //    mp_dialog.Refresh();
-            //    tbAdmin.Clear();
-            //    this.Close();
-            //}
-            //else
+            if (AdmMode.AuthenticateAdm(tbAdmin.Text))
             {
-                MessageBox.Show("Error!");
+                AdmMode.isAdm = true;
+                mp_dialog.Refresh();
+                tbAdmin.Clear();
+                this.Close();
+            }
+            else if(tbAdmin.Text == "")
+            {
+                MessageBox.Show("text box Admin Password has been not euqal null!");
+            }
+            else
+            {
+                MessageBox.Show("You don`t have a password!");
+                CPF_dialog.Show();
             }            
         }
 
@@ -56,6 +62,12 @@ namespace ManagePassword
         private void btnReg_Click(object sender, EventArgs e)
         {
             CPF_dialog.Show();
+        }
+
+        private void btnDel_Click(object sender, EventArgs e)
+        {
+            admDelete_dialog = new AdmDelete();
+            admDelete_dialog.Show();
         }
     }
 }

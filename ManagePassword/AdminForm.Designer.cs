@@ -34,6 +34,7 @@
             this.btnExit = new System.Windows.Forms.Button();
             this.btnClose = new System.Windows.Forms.Button();
             this.btnReg = new System.Windows.Forms.Button();
+            this.btnDel = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // tbAdmin
@@ -41,7 +42,7 @@
             this.tbAdmin.Location = new System.Drawing.Point(104, 12);
             this.tbAdmin.Name = "tbAdmin";
             this.tbAdmin.PasswordChar = '*';
-            this.tbAdmin.Size = new System.Drawing.Size(237, 20);
+            this.tbAdmin.Size = new System.Drawing.Size(318, 20);
             this.tbAdmin.TabIndex = 0;
             // 
             // label1
@@ -93,11 +94,22 @@
             this.btnReg.UseVisualStyleBackColor = true;
             this.btnReg.Click += new System.EventHandler(this.btnReg_Click);
             // 
+            // btnDel
+            // 
+            this.btnDel.Location = new System.Drawing.Point(347, 38);
+            this.btnDel.Name = "btnDel";
+            this.btnDel.Size = new System.Drawing.Size(75, 23);
+            this.btnDel.TabIndex = 6;
+            this.btnDel.Text = "Delete";
+            this.btnDel.UseVisualStyleBackColor = true;
+            this.btnDel.Click += new System.EventHandler(this.btnDel_Click);
+            // 
             // AdminForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(344, 71);
+            this.ClientSize = new System.Drawing.Size(434, 71);
+            this.Controls.Add(this.btnDel);
             this.Controls.Add(this.btnReg);
             this.Controls.Add(this.btnClose);
             this.Controls.Add(this.btnExit);
@@ -119,5 +131,6 @@
         private System.Windows.Forms.TextBox tbAdmin;
         private System.Windows.Forms.Button btnClose;
         private System.Windows.Forms.Button btnReg;
+        private System.Windows.Forms.Button btnDel;
     }
 }
