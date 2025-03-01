@@ -12,18 +12,12 @@ namespace ManagePassword
     internal class SqlQueries
     {
         string conn_str = "Host=localhost;Username=postgres;Password=291305;Database=postgres";
+        NpgsqlCommand temp_cmd;
         public void Insert(string tb_insert_open, string tb_insert_secret)
         {
-            single_query($"CALL insertPasswords('{tb_insert_open}','{tb_insert_secret}')");
-        }
-        public object Autheticate(string Password)
-        {
-            return circle_query($"SELECT adm_string FROM \"Admin\" WHERE \"adm_string\" = '{Password}'");
-        }
-
-        public void Registr_admin(string Password)
-        {
-            single_query($"INSERT INTO \"Admin\" (adm_string) VALUES ({Password})");
+            temp_cmd = new NpgsqlCommand($"CALL insertPasswords('{tb_insert_open}','{tb_insert_secret}')");
+            //single_query($"CALL insertPasswords('{tb_insert_open}','{tb_insert_secret}')");
+            single_query(temp_cmd);
         }
         public DataTable Refresh()
         {
@@ -51,12 +45,19 @@ namespace ManagePassword
         }
         public void Del(string tb_del_id)
         {
-            single_query($"CALL deletepasswords('{tb_del_id}')");
+            temp_cmd = new NpgsqlCommand($"CALL deletepasswords('{tb_del_id}')");
+            //single_query($"CALL deletepasswords('{tb_del_id}')");
+            single_query(temp_cmd);
         }
         public void Change(string tb_change_open, string tb_change_secret, string tb_change_id)
         {
             if (AdmMode.isAdm)
-                single_query($"CALL UpdatePasswords('{tb_change_open}', '{tb_change_secret}', '{tb_change_id}')");
+            {
+                temp_cmd = new NpgsqlCommand($"CALL UpdatePasswords('{tb_change_open}', '{tb_change_secret}', '{tb_change_id}')");
+                //single_query($"CALL UpdatePasswords('{tb_change_open}', '{tb_change_secret}', '{tb_change_id}')");
+                single_query(temp_cmd);
+
+            }
         }
         public void Select(DataGridView dgv, TextBox tb_select_open, TextBox tb_select_secret)
         {
@@ -94,16 +95,16 @@ namespace ManagePassword
             }
             return dataTable;
         }
-        public void single_query(string query)
+        public void single_query(NpgsqlCommand cmd)
         {
             try
             {
                 NpgsqlConnection conn_DB = new NpgsqlConnection(conn_str);
-                NpgsqlCommand cmd = new NpgsqlCommand();
                 conn_DB.Open();
+                
                 cmd.Connection = conn_DB;
-                cmd.CommandText = query;
                 cmd.ExecuteNonQuery();
+
                 conn_DB.Close();
             }
             catch (Exception e)

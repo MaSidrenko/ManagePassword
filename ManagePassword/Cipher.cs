@@ -42,7 +42,7 @@ namespace ManagePassword
             rng.Dispose();
             return iv;
         }
-        static string EncryptAES(string password, byte[] key, byte[] iv)
+        public static string EncryptAES(string password, byte[] key, byte[] iv)
         {
             Aes aes = Aes.Create();
             aes.Key = key;
@@ -56,7 +56,7 @@ namespace ManagePassword
             encryptor.Dispose();
             return Convert.ToBase64String(encryptedBytes);  
         }
-        static string DecryptAES(string CipherPassowrd, byte[] key, byte[] iv)
+        public static string DecryptAES(string CipherPassowrd, byte[] key, byte[] iv)
         {
             Aes aes = Aes.Create();
             aes.Key = key;

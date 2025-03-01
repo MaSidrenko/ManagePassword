@@ -24,14 +24,14 @@ namespace ManagePassword
 
         private void btnEnterToAdminMode_Click(object sender, EventArgs e)
         {
-            AdmMode.hasPassword();
-            if (AdmMode.beAdm(tbAdmin.Text))
-            {
-                mp_dialog.Refresh();
-                tbAdmin.Clear();
-                this.Close();
-            }
-            else
+            //AdmMode.hasPassword();
+            //if (AdmMode.beAdm(tbAdmin.Text))
+            //{
+            //    mp_dialog.Refresh();
+            //    tbAdmin.Clear();
+            //    this.Close();
+            //}
+            //else
             {
                 MessageBox.Show("Error!");
             }            
@@ -51,6 +51,11 @@ namespace ManagePassword
         private void btnClose_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void btnReg_Click(object sender, EventArgs e)
+        {
+            CPF_dialog.Show();
         }
     }
 }

@@ -16,5 +16,12 @@ namespace ManagePassword
         {
             InitializeComponent();
         }
+
+        private void btnOk_Click(object sender, EventArgs e)
+        {
+            string password = tbCreatePassword.Text;
+            Cipher.SetPass(password);
+            AdmMode.RegistrUser(password);
+        }
     }
 }

@@ -33,6 +33,7 @@
             this.btnEnterToAdminMode = new System.Windows.Forms.Button();
             this.btnExit = new System.Windows.Forms.Button();
             this.btnClose = new System.Windows.Forms.Button();
+            this.btnReg = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // tbAdmin
@@ -82,18 +83,29 @@
             this.btnClose.UseVisualStyleBackColor = true;
             this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
             // 
-            // AdminMode
+            // btnReg
+            // 
+            this.btnReg.Location = new System.Drawing.Point(23, 38);
+            this.btnReg.Name = "btnReg";
+            this.btnReg.Size = new System.Drawing.Size(75, 23);
+            this.btnReg.TabIndex = 5;
+            this.btnReg.Text = "Register";
+            this.btnReg.UseVisualStyleBackColor = true;
+            this.btnReg.Click += new System.EventHandler(this.btnReg_Click);
+            // 
+            // AdminForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(344, 71);
+            this.Controls.Add(this.btnReg);
             this.Controls.Add(this.btnClose);
             this.Controls.Add(this.btnExit);
             this.Controls.Add(this.btnEnterToAdminMode);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.tbAdmin);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
-            this.Name = "AdminMode";
+            this.Name = "AdminForm";
             this.Text = "AdminMode";
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -106,5 +118,6 @@
         private System.Windows.Forms.Button btnExit;
         private System.Windows.Forms.TextBox tbAdmin;
         private System.Windows.Forms.Button btnClose;
+        private System.Windows.Forms.Button btnReg;
     }
 }

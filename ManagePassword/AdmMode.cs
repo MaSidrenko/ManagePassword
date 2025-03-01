@@ -6,54 +6,39 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Npgsql;
+using NpgsqlTypes;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace ManagePassword
 {
     static internal class AdmMode
     {
-        static public bool isAdm = true;
-        static string PASSWORD = "";
-        static SqlQueries Query = new SqlQueries();
-        static public bool beAdm(string tbAdm)
-        {
-            if (PASSWORD == tbAdm)
-            {
-                isAdm = true;
-            }
-            return isAdm;
-        }
-        static public void hasPassword()
-        {
-            if(PASSWORD == "")
-            {
-                MessageBox.Show("Create the password!", "Information", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
-                CreatePasswordForm CPF_dialog = new CreatePasswordForm();
-                CPF_dialog.ShowDialog();
-            }
-        }
-        static public void RegistrPassword(string Password)
+        public static bool isAdm = true;
+        public static void RegistrUser(string password, string admin = "admin")
         {
             try
             {
-                Query.Registr_admin(Password);
+                byte[] salt = Cipher.GenerateSalt();
+                byte[] iv = Cipher.GenerateIV();
+                byte[] key = Cipher.DeriveKey(password, salt);
+                string cihper_pass = Cipher.EncryptAES(password, key, iv);
+
+                string query = $"INSERT INTO Admins (admin_name, password_hash, salt, aes_iv) VALUES(@username, @password_hash, @salt, @aes_iv)";
+
+                SqlQueries sql = new SqlQueries();
+                NpgsqlCommand cmd = new NpgsqlCommand(query);
+
+                cmd.Parameters.AddWithValue("@username", NpgsqlDbType.Text, "Admin");
+                cmd.Parameters.AddWithValue("@salt", NpgsqlDbType.Bytea, salt);
+                cmd.Parameters.AddWithValue("@password_hash", NpgsqlDbType.Bytea, Convert.FromBase64String(cihper_pass));
+                cmd.Parameters.AddWithValue("@aes_iv", NpgsqlDbType.Bytea, iv);
+                sql.single_query(cmd);
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show(e.Message);
             }
+
         }
-        static public bool AuthenticateAdmin(string Password)
-        {
-            try
-            {
-                object result = Query.Autheticate(Password);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-            return true;
-        }
-        
     }
 }
