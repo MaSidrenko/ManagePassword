@@ -16,7 +16,7 @@ namespace ManagePassword
         {
             single_query($"CALL insertPasswords('{tb_insert_open}','{tb_insert_secret}')");
         }
-        public DataTable Find_adm_Password(string Password)
+        public object Autheticate(string Password)
         {
             return circle_query($"SELECT adm_string FROM \"Admin\" WHERE \"adm_string\" = '{Password}'");
         }

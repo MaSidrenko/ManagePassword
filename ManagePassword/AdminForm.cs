@@ -45,6 +45,7 @@ namespace ManagePassword
                 mp_dialog.Refresh();
             }
             this.Close();
+           
         }
 
         private void btnClose_Click(object sender, EventArgs e)

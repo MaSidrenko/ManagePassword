@@ -35,12 +35,25 @@ namespace ManagePassword
         {
             try
             {
-                Query.
+                Query.Registr_admin(Password);
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
         }
+        static public bool AuthenticateAdmin(string Password)
+        {
+            try
+            {
+                object result = Query.Autheticate(Password);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            return true;
+        }
+        
     }
 }
