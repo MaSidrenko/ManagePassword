@@ -28,6 +28,7 @@ namespace ManagePassword
             if (AdmMode.AuthenticateAdm(tbAdmin.Text))
             {
                 AdmMode.isAdm = true;
+                AdmMode.GetAdmPassword(tbAdmin.Text);
                 mp_dialog.Refresh();
                 tbAdmin.Clear();
                 this.Close();

@@ -13,6 +13,14 @@ namespace ManagePassword
         private static byte[] AESkey;
         private static byte[] AESIV;
 
+        public static (byte[], byte[], byte[]) GenerateKeys()
+        {
+            byte[] Salt = null, iv = null, key = null;
+            Salt = GenerateSalt();
+            iv = GenerateIV();
+            key = DeriveKey(AdmMode.AdmPassword, Salt);
+            return (Salt, iv, key);
+        }
         public static void SetPass(string password, byte[] customSalt = null)
         {
             salt = customSalt ?? GenerateSalt();
@@ -42,7 +50,7 @@ namespace ManagePassword
             rng.Dispose();
             return iv;
         }
-        public static string EncryptAES(string password, byte[] key, byte[] iv)
+        public static byte[] EncryptAES(string password, byte[] key, byte[] iv)
         {
             Aes aes = Aes.Create();
             aes.Key = key;
@@ -54,21 +62,18 @@ namespace ManagePassword
             byte[] inputBytes = Encoding.UTF8.GetBytes(password);
             byte[] encryptedBytes = encryptor.TransformFinalBlock(inputBytes, 0, inputBytes.Length);
             encryptor.Dispose();
-            return Convert.ToBase64String(encryptedBytes);  
+            return encryptedBytes;
         }
-        public static string DecryptAES(string CipherPassowrd, byte[] key, byte[] iv)
+        public static string DecryptAES(byte[] CipherPassowrd, byte[] key, byte[] iv)
         {
             Aes aes = Aes.Create();
             aes.Key = key;
-            aes.IV = iv;   
+            aes.IV = iv;
             aes.Mode = CipherMode.CBC;
             aes.Padding = PaddingMode.PKCS7;
 
             ICryptoTransform decryptor = aes.CreateDecryptor();
-            byte[] encryptedBytes = Convert.FromBase64String(CipherPassowrd);
-            byte[] decryptedBytes = decryptor.TransformFinalBlock(encryptedBytes, 0, encryptedBytes.Length);
-            decryptor.Dispose();
-            aes.Dispose();
+            byte[] decryptedBytes = decryptor.TransformFinalBlock(CipherPassowrd, 0, CipherPassowrd.Length);
             return Encoding.UTF8.GetString(decryptedBytes);
         }
     }

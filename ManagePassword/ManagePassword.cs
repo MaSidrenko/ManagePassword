@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Npgsql;
@@ -23,9 +24,11 @@ namespace ManagePassword
             this.CenterToScreen();
             sqlQueries = new SqlQueries();
             Refresh();
+            //dgvDB.DataSource = sqlQueries.Refresh();
         }
         public void Refresh()
         {
+            //if (AdmMode.isAdm)
             dgvDB.DataSource = sqlQueries.Refresh();
         }
         private void dgvDB_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
@@ -38,20 +41,23 @@ namespace ManagePassword
 
         private void cmAdd_MouseDown(object sender, MouseEventArgs e)
         {
-            FormAdd formAdd_dialog = new FormAdd();
-            if (formAdd_dialog.ShowDialog() == DialogResult.OK)
+            adminMode_dialog = new AdminForm(this);
+            if (AdmMode.AdmPassword == "")
             {
-                dgvDB.DataSource = sqlQueries.Refresh();
+                MessageBox.Show("Type Master Password!", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                adminMode_dialog.Show();
+                MessageBox.Show("Click second time on Add!");
+            }
+            else if (AdmMode.AdmPassword != "")
+            {
+
+                FormAdd formAdd_dialog = new FormAdd();
+                if (formAdd_dialog.ShowDialog() == DialogResult.OK)
+                {
+                    dgvDB.DataSource = sqlQueries.Refresh();
+                }
             }
         }
-
-        private void findToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            FormFind formFind_dialog = new FormFind();
-            formFind_dialog.GetDVG(dgvDB);
-            formFind_dialog.Show();
-        }
-
         private void changeToolStripMenuItem_Click(object sender, EventArgs e)
         {
             FormChange formChange_dialog = new FormChange();
@@ -76,7 +82,7 @@ namespace ManagePassword
             {
                 MessageBox.Show("You`a not in admin mode!");
                 adminModeToolStripMenuItem_Click(sender, e);
-                
+
             }
         }
 
@@ -122,6 +128,39 @@ namespace ManagePassword
                 this.Location.Y
                 );
             formInfo_dialog.Show();
+        }
+
+        private void FindBox_TextChanged(object sender, EventArgs e)
+        {
+            if (FindBox.TextLength >= 4 && FindBox.Text != "Search") 
+                dgvDB.DataSource = sqlQueries.Find(FindBox.Text);
+            if(FindBox.TextLength == 0 && FindBox.Text != "Search")
+                Refresh();
+        }
+
+        private void FindBox_Enter(object sender, EventArgs e)
+       {
+            if(FindBox.Text == "Search")
+            {
+                FindBox.Text = "";
+                FindBox.ForeColor = Color.Black; 
+            }
+
+
+        }
+
+        private void FindBox_Leave(object sender, EventArgs e)
+        {
+            if(FindBox.Text == "")
+            {
+                FindBox.Text = "Search";
+                FindBox.ForeColor = Color.Silver;
+            }
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }
