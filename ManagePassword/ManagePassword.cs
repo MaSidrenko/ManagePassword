@@ -24,11 +24,9 @@ namespace ManagePassword
             this.CenterToScreen();
             sqlQueries = new SqlQueries();
             Refresh();
-            //dgvDB.DataSource = sqlQueries.Refresh();
         }
         public void Refresh()
         {
-            //if (AdmMode.isAdm)
             dgvDB.DataSource = sqlQueries.Refresh();
         }
         private void dgvDB_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)

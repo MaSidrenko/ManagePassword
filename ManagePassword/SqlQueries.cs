@@ -58,7 +58,8 @@ namespace ManagePassword
 
             if (AdmMode.isAdm)
             {
-                dataTable = circle_query("SELECT id AS \"Number\", open_string AS \"Service\", password_hash, salt, aes_iv FROM PasswordCihper");
+                temp_cmd = new NpgsqlCommand("SELECT id AS \"Number\", open_string AS \"Service\", password_hash, salt, aes_iv FROM PasswordCihper");
+                dataTable = circle_query(temp_cmd);
                 dataTable = DecryptPasswordDB(dataTable);
                 if (dataTable.Rows.Count > 0)
                     RemoveColumns(dataTable);
@@ -66,7 +67,8 @@ namespace ManagePassword
             }
             else
             {
-                return circle_query("SELECT id AS \"Number\", open_string AS \"Service\" FROM PasswordCihper");
+                temp_cmd = new NpgsqlCommand("SELECT id AS \"Number\", open_string AS \"Service\" FROM PasswordCihper");
+                return circle_query(temp_cmd);
             }
         }
 
@@ -75,7 +77,10 @@ namespace ManagePassword
             DataTable dataTable = new DataTable();
             if (AdmMode.isAdm)
             {
-                dataTable = circle_query($"SELECT id AS \"Number\", open_string AS \"Service\", password_hash, salt, aes_iv FROM PasswordCihper WHERE open_string LIKE '{tb_find_open + "%"}'");
+                temp_cmd = new NpgsqlCommand("SELECT id AS \"Number\", open_string AS \"Service\", password_hash, salt, aes_iv FROM PasswordCihper WHERE open_string LIKE @open");
+                temp_cmd.Parameters.AddWithValue("@open", NpgsqlDbType.Text ,tb_find_open + "%");
+                dataTable = circle_query(temp_cmd);
+
                 dataTable = DecryptPasswordDB(dataTable);
                 if (dataTable.Rows.Count > 0)
                     RemoveColumns(dataTable);
@@ -83,7 +88,9 @@ namespace ManagePassword
             }
             else if (!AdmMode.isAdm)
             {
-                dataTable = circle_query($"SELECT id AS \"Nubmer\", open_string AS \"Service\" FROM PasswordCihper WHERE open_string LIKE '{tb_find_open + "%"}'");
+                temp_cmd = new NpgsqlCommand("SELECT id AS \"Nubmer\", open_string AS \"Service\" FROM PasswordCihper WHERE open_string LIKE @open");
+                temp_cmd.Parameters.AddWithValue("@open", NpgsqlDbType.Text, tb_find_open + "%");
+                dataTable = circle_query(temp_cmd);
                 return dataTable;
             }
             else
@@ -93,7 +100,8 @@ namespace ManagePassword
         }
         public void Del(string tb_del_id)
         {
-            temp_cmd = new NpgsqlCommand($"DELETE FROM passwordcihper WHERE id = '{tb_del_id}'");
+            temp_cmd = new NpgsqlCommand("DELETE FROM passwordcihper WHERE id = @id");
+            temp_cmd.Parameters.AddWithValue("@id", NpgsqlDbType.Integer, tb_del_id);
             single_query(temp_cmd);
         }
         public void Change(string tb_change_open, string tb_change_secret, string tb_change_id)
@@ -104,25 +112,24 @@ namespace ManagePassword
                 (salt, iv, AESkey) = Cipher.GenerateKeys();
                 byte[] cipher_pass = Cipher.EncryptAES(tb_change_secret, AESkey, iv);
 
-                temp_cmd = new NpgsqlCommand($"UPDATE PasswordCihper SET open_string = @open_string, password_hash = @password_hash, salt = @salt, aes_iv = @aes_iv WHERE id = '{tb_change_id}'");
+                temp_cmd = new NpgsqlCommand("UPDATE PasswordCihper SET open_string = @open_string, password_hash = @password_hash, salt = @salt, aes_iv = @aes_iv WHERE id = @id");
                 Dictionary<string, object> parameters = CreateParameters(tb_change_open, cipher_pass, salt, iv);
+                temp_cmd.Parameters.AddWithValue("@id", NpgsqlDbType.Integer, tb_change_id);
                 SetParameters(temp_cmd, parameters);
 
                 single_query(temp_cmd);
 
             }
         }
-        public DataTable circle_query(string query)
+        public DataTable circle_query(NpgsqlCommand cmd)
         {
             DataTable dataTable = new DataTable();
             try
             {
                 NpgsqlConnection conn_DB = new NpgsqlConnection(conn_str);
-                NpgsqlCommand cmd = new NpgsqlCommand();
                 conn_DB.Open();
                 cmd.Connection = conn_DB;
                 cmd.CommandType = CommandType.Text;
-                cmd.CommandText = query;
                 NpgsqlDataReader reader = cmd.ExecuteReader();
                 if (reader.HasRows)
                 {
