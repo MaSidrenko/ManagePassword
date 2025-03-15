@@ -100,7 +100,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.tbPasswordAdd);
             this.Controls.Add(this.tbServiceAdd);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Name = "FormAdd";
             this.Text = "FormAdd";
             this.ResumeLayout(false);

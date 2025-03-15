@@ -13,10 +13,10 @@ namespace ManagePassword
 {
     public partial class AdminForm : Form
     {
-        ManagePassword mp_dialog;
+        ManagePasswordForm mp_dialog;
         CreatePasswordForm CPF_dialog;
         AdmDelete admDelete_dialog;
-        public AdminForm(ManagePassword parent)
+        public AdminForm(ManagePasswordForm parent)
         {
             InitializeComponent();
             mp_dialog = parent;
@@ -48,6 +48,7 @@ namespace ManagePassword
         {
             if (AdmMode.isAdm)
             {
+                AdmMode.AdmPassword = "";
                 AdmMode.isAdm = false;
                 mp_dialog.Refresh();
             }

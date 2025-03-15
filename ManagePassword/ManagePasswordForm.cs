@@ -12,22 +12,62 @@ using Npgsql;
 
 namespace ManagePassword
 {
-    public partial class ManagePassword : Form
+    public partial class ManagePasswordForm : Form
     {
-        SqlQueries sqlQueries = null;
         FormInfo formInfo_dialog = null;
         AdminForm adminMode_dialog = null;
-        public ManagePassword()
+        public ManagePasswordForm()
         {
             InitializeComponent();
             adminMode_dialog = new AdminForm(this);
             this.CenterToScreen();
-            sqlQueries = new SqlQueries();
             Refresh();
         }
         public void Refresh()
         {
-            dgvDB.DataSource = sqlQueries.Refresh();
+
+            dgvDB.DataSource = QueriesDB.Refresh();
+            foreach (DataGridViewColumn column in dgvDB.Columns.Cast<DataGridViewColumn>().ToList())
+            {
+                if (column.Name == "password_hash")
+                {
+                    dgvDB.DataSource = DecryptPasswordDB((DataTable)dgvDB.DataSource);
+                    if (dgvDB.Rows.Count > 0)
+                        RemoveColumns((DataTable)dgvDB.DataSource);
+                }
+            }
+        }
+        public void RemoveColumns(DataTable table)
+        {
+            table.Columns.Remove("password_hash");
+            table.Columns.Remove("salt");
+            table.Columns.Remove("aes_iv");
+        }
+        //Не помню зачем
+        //TODO
+        public DataTable DecryptPasswordDB(DataTable table)
+        {
+            foreach (DataRow row in table.Rows)
+            {
+                byte[] encryptedData = (byte[])row["password_hash"];
+                byte[] salt = (byte[])row["salt"];
+                byte[] iv = (byte[])row["aes_iv"];
+
+
+                if (!table.Columns.Contains("Password"))
+                {
+                    table.Columns.Add("Password", typeof(string));
+                }
+
+                if (encryptedData != null && salt != null && iv != null)
+                {
+                    //TODO
+                    byte[] key = Cipher.DeriveKey(AdmMode.AdmPassword, salt);
+                    string decrypted = Cipher.DecryptAES(encryptedData, key, iv);
+                    row["Password"] = decrypted;
+                }
+            }
+            return table;
         }
         private void dgvDB_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         {
@@ -52,7 +92,7 @@ namespace ManagePassword
                 FormAdd formAdd_dialog = new FormAdd();
                 if (formAdd_dialog.ShowDialog() == DialogResult.OK)
                 {
-                    dgvDB.DataSource = sqlQueries.Refresh();
+                    Refresh();
                 }
             }
         }
@@ -64,6 +104,7 @@ namespace ManagePassword
 
         private void dgvDB_CellMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e)
         {
+            //КОСТЫЛЬ ЗДЕСЬ!!!
             try
             {
                 string id = dgvDB.Rows[e.RowIndex].Cells[0].Value.ToString();
@@ -88,7 +129,7 @@ namespace ManagePassword
         {
             if (MessageBox.Show("Delete:\n" + "Service: " + dgvDB.Rows[dgvDB.CurrentCellAddress.Y].Cells[1].Value.ToString(), "Delete Message", MessageBoxButtons.OKCancel) == DialogResult.OK)
             {
-                sqlQueries.Del(dgvDB.Rows[dgvDB.CurrentCellAddress.Y].Cells[0].Value.ToString());
+                QueriesDB.Del(dgvDB.Rows[dgvDB.CurrentCellAddress.Y].Cells[0].Value.ToString());
                 MessageBox.Show("Data has been deleted!");
                 Refresh();
             }
@@ -130,18 +171,29 @@ namespace ManagePassword
 
         private void FindBox_TextChanged(object sender, EventArgs e)
         {
-            if (FindBox.TextLength >= 4 && FindBox.Text != "Search") 
-                dgvDB.DataSource = sqlQueries.Find(FindBox.Text);
-            if(FindBox.TextLength == 0 && FindBox.Text != "Search")
+            if (FindBox.TextLength >= 4 && FindBox.Text != "Search")
+            {
+                dgvDB.DataSource = QueriesDB.Find(FindBox.Text);
+                foreach (DataGridViewColumn column in dgvDB.Columns.Cast<DataGridViewColumn>().ToList())
+                {
+                    if (column.Name == "password_hash")
+                    {
+                        dgvDB.DataSource = DecryptPasswordDB((DataTable)dgvDB.DataSource);
+                        if (dgvDB.Rows.Count > 0)
+                            RemoveColumns((DataTable)dgvDB.DataSource);
+                    }
+                }
+            }
+            if (FindBox.TextLength == 0 && FindBox.Text != "Search")
                 Refresh();
         }
 
         private void FindBox_Enter(object sender, EventArgs e)
-       {
-            if(FindBox.Text == "Search")
+        {
+            if (FindBox.Text == "Search")
             {
                 FindBox.Text = "";
-                FindBox.ForeColor = Color.Black; 
+                FindBox.ForeColor = Color.Black;
             }
 
 
@@ -149,7 +201,7 @@ namespace ManagePassword
 
         private void FindBox_Leave(object sender, EventArgs e)
         {
-            if(FindBox.Text == "")
+            if (FindBox.Text == "")
             {
                 FindBox.Text = "Search";
                 FindBox.ForeColor = Color.Silver;
