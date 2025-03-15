@@ -69,6 +69,7 @@
             this.Controls.Add(this.btnCancle);
             this.Controls.Add(this.btnOk);
             this.Controls.Add(this.tbDel);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Name = "AdmDelete";
             this.Text = "AdmDelete";
             this.ResumeLayout(false);

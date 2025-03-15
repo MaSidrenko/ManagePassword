@@ -12,16 +12,14 @@ namespace ManagePassword
 {
     public partial class FormChange : Form
     {
-        SqlQueries sql;
         string id;
         string service;
         string password;
-        ManagePassword MP_dialog;
+        ManagePasswordForm MP_dialog;
         public FormChange()
         {
             InitializeComponent();
-            sql = new SqlQueries();
-            MP_dialog = new ManagePassword();
+            MP_dialog = new ManagePasswordForm();
         }
         public void Select(string Service, string Password, string ID)
         {
@@ -43,7 +41,7 @@ namespace ManagePassword
             {
                 tbChangePassword.Text = password;
             }
-            sql.Change(tbChangeService.Text, tbChangePassword.Text, id);
+            QueriesDB.Change(tbChangeService.Text, tbChangePassword.Text, id);
             lblID.Text = "Selected id: ";
         }
 

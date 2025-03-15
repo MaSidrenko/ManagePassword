@@ -23,6 +23,7 @@ namespace ManagePassword
         {
             try
             {
+                //TODO
                 byte[] salt = Cipher.GenerateSalt();
                 byte[] iv = Cipher.GenerateIV();
                 byte[] key = Cipher.DeriveKey(password, salt);
@@ -30,14 +31,13 @@ namespace ManagePassword
 
                 string query = $"INSERT INTO Admins (admin_name, password_hash, salt, aes_iv) VALUES(@username, @password_hash, @salt, @aes_iv)";
 
-                SqlQueries sql = new SqlQueries();
                 NpgsqlCommand cmd = new NpgsqlCommand(query);
 
                 cmd.Parameters.AddWithValue("@username", NpgsqlDbType.Text, admin);
                 cmd.Parameters.AddWithValue("@salt", NpgsqlDbType.Bytea, salt);
                 cmd.Parameters.AddWithValue("@password_hash", NpgsqlDbType.Bytea, cihper_pass);
                 cmd.Parameters.AddWithValue("@aes_iv", NpgsqlDbType.Bytea, iv);
-                sql.single_query(cmd);
+                PostgreSQL.single_query(cmd);
                 cmd.Dispose();
             }
             catch (Exception e)
@@ -47,13 +47,13 @@ namespace ManagePassword
         }
         public static bool AuthenticateAdm(string password)
         {
-            SqlQueries temp_sql = new SqlQueries();
-            (byte[] salt, byte[] pass_hash, byte[] aesIV) = temp_sql.read_cihper_query($"SELECT password_hash, salt, aes_iv FROM Admins WHERE admin_name = 'Admin'");
+            (byte[] salt, byte[] pass_hash, byte[] aesIV) = PostgreSQL.read_cihper_query($"SELECT password_hash, salt, aes_iv FROM Admins WHERE admin_name = 'Admin'");
             if (salt == null || pass_hash == null || aesIV == null)
                 return false;
             try
             {
                 byte[] encryptedPasswordBytes = pass_hash;
+                //TODO
                 byte[] aesKey = Cipher.DeriveKey(password, salt);
                 string decrypted_pass = Cipher.DecryptAES(encryptedPasswordBytes, aesKey, aesIV);
 
@@ -67,21 +67,21 @@ namespace ManagePassword
         }
         public static void DeleteAdm(string password)
         {
-            SqlQueries temp_sql = new SqlQueries();
-            (byte[] salt, byte[] pass_hash, byte[] aesIV) = temp_sql.read_cihper_query($"SELECT password_hash, salt, aes_iv FROM Admins WHERE admin_name = 'Admin'");
+            (byte[] salt, byte[] pass_hash, byte[] aesIV) = PostgreSQL.read_cihper_query($"SELECT password_hash, salt, aes_iv FROM Admins WHERE admin_name = 'Admin'");
             if (salt == null || pass_hash == null || aesIV == null)
                 MessageBox.Show("User not found!");
+            //TODO
             byte[] aesKey = Cipher.DeriveKey(password, salt);
             string decrypted_pass = Cipher.DecryptAES(pass_hash, aesKey, aesIV);
 
-            if (decrypted_pass== password)
+            if (decrypted_pass == password)
             {
                 string delteQuery = "DELETE FROM Admins WHERE admin_name = 'Admin' AND password_hash = @password_hash";
 
                 NpgsqlCommand cmd = new NpgsqlCommand(delteQuery);
                 cmd.Parameters.AddWithValue("@password_hash", NpgsqlDbType.Bytea, pass_hash);
 
-                temp_sql.single_query(cmd);
+                PostgreSQL.single_query(cmd);
                 cmd.Dispose();
             }
         }

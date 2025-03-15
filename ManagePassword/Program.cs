@@ -16,7 +16,7 @@ namespace ManagePassword
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new ManagePassword());
+            Application.Run(new ManagePasswordForm());
         }
     }
 }

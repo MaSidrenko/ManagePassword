@@ -111,6 +111,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.tbChangePassword);
             this.Controls.Add(this.tbChangeService);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Name = "FormChange";
             this.Text = "FormChange";
             this.ResumeLayout(false);
