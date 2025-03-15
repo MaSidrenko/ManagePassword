@@ -7,13 +7,26 @@ using System.Security.Cryptography;
 
 namespace ManagePassword
 {
-    static internal class Cipher
+    /*static*/ internal class Cipher
     {
         private static byte[] salt;
         private static byte[] AESkey;
         private static byte[] AESIV;
 
-        public static (byte[], byte[], byte[]) GenerateKeys()
+		public byte[] Salt { get; set; }
+		public byte[] AES_key { get; set; }
+		public byte[] AESiv { get; set; }
+		public byte[] CipherText { get; set; }
+
+		public Cipher(out byte[] _Salt, out byte[] AESKEY, out byte[] AES_iv, ref byte[] cipher, ref string str_cihper)
+		{
+			(Salt, AESiv, AES_key) = GenerateKeys();
+			//cipher = EncryptAES(str_cihper, AES_key, AESiv);
+			CipherText = EncryptAES(str_cihper, AES_key, AESiv);
+			(_Salt, AES_iv, AESKEY, cipher) = (Salt, AESiv, AES_key, CipherText);
+		}
+
+		public static (byte[], byte[], byte[]) GenerateKeys()
         {
             byte[] Salt = null, iv = null, key = null;
             Salt = GenerateSalt();
