@@ -20,13 +20,16 @@ namespace ManagePassword
         private void btnOk_Click(object sender, EventArgs e)
         {
             string password = tbCreatePassword.Text;
-            Cipher.SetPass(password);
+            //Cipher.SetPass(password);
             AdmMode.RegistrAdm(password);
+            this.Close();
+            this.Dispose();
         }
 
         private void btnCancle_Click(object sender, EventArgs e)
         {
             this.Close();
-        }
+			this.Dispose();
+		}
     }
 }

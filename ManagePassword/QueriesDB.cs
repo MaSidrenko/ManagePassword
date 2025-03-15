@@ -15,7 +15,7 @@ namespace ManagePassword
 {
     static internal class QueriesDB
     {
-        static string BdMode = "SQLite";
+        static string BdMode = "Postgre";
         static public Dictionary<string, object> CreateParameters(string open_string, byte[] cipher_password, byte[] salt, byte[] iv)
         {
             return new Dictionary<string, object>
@@ -92,11 +92,11 @@ namespace ManagePassword
             }
         }
 
-        //Не помню зачем нужен был этот метод. Пока оставлю, мало ли
-        //public string GetKeyForAdmin(string query)
+        //Не помню зачем нужен был этот метод.Пока оставлю, мало ли
+        //static public string GetKeyForAdmin(string query)
         //{
         //    string aesKeyBase64 = null;
-        //    NpgsqlConnection conn_DB = new NpgsqlConnection(conn_str);
+        //    NpgsqlConnection conn_DB = new NpgsqlConnection("Host=localhost;Username=postgres;Password=291305;Database=postgres");
         //    conn_DB.Open();
         //    NpgsqlCommand cmd = new NpgsqlCommand(query, conn_DB);
         //    object result = cmd.ExecuteScalar();
