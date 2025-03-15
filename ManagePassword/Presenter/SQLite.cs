@@ -7,6 +7,7 @@ using System.Data.SQLite;
 using System.Data;
 using System.Windows.Forms;
 using static System.Net.Mime.MediaTypeNames;
+using Npgsql;
 
 namespace ManagePassword
 {
@@ -150,6 +151,34 @@ namespace ManagePassword
 			{
 				cmd.Parameters.AddWithValue(prm.Key, prm.Value);
 			}
+		}
+		static public (byte[], byte[], byte[]) read_cihper_query(string query)
+		{
+			byte[] salt = null;
+			byte[] pass_hash = null;
+			byte[] iv = null;
+			SQLiteConnection conn_DB = new SQLiteConnection(conn_str);
+			SQLiteCommand cmd = new SQLiteCommand(query, conn_DB);
+			conn_DB.Open();
+
+			SQLiteDataReader reader = cmd.ExecuteReader();
+			if (reader.Read())
+			{
+				(salt, pass_hash, iv) = FetchSecurityKeys(reader);
+			}
+			reader.Close();
+			cmd.Dispose();
+			conn_DB.Close();
+			conn_DB.Dispose();
+			return (salt, pass_hash, iv);
+		}
+
+		public static (byte[], byte[], byte[]) FetchSecurityKeys(SQLiteDataReader reader)
+		{
+			byte[] salt = (byte[])reader["salt"];
+			byte[] pass_hash = (byte[])reader["password_hash"];
+			byte[] iv = (byte[])reader["aes_iv"];
+			return (salt, pass_hash, iv);
 		}
 	}
 }
