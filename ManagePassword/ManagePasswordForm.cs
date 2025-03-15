@@ -16,13 +16,16 @@ namespace ManagePassword
     {
         FormInfo formInfo_dialog = null;
         AdminForm adminMode_dialog = null;
-        public ManagePasswordForm()
+        DateTime time;
+
+		public ManagePasswordForm()
         {
             InitializeComponent();
             adminMode_dialog = new AdminForm(this);
             this.CenterToScreen();
             Refresh();
-        }
+			time = DateTime.Now;
+		}
         public void Refresh()
         {
 
@@ -62,8 +65,11 @@ namespace ManagePassword
                 if (encryptedData != null && salt != null && iv != null)
                 {
                     //TODO
-                    byte[] key = Cipher.DeriveKey(AdmMode.AdmPassword, salt);
-                    string decrypted = Cipher.DecryptAES(encryptedData, key, iv);
+                    byte[] key = /*Cipher.DeriveKey(AdmMode.AdmPassword, salt)*/ null;
+                    string decrypted = /*Cipher.DecryptAES(encryptedData, key, iv)*/ null;
+
+                    Cipher cipher = new Cipher(out decrypted,out key,ref salt,ref encryptedData,ref iv, ref AdmMode.AdmPassword);
+                   
                     row["Password"] = decrypted;
                 }
             }
@@ -212,5 +218,21 @@ namespace ManagePassword
         {
             this.Close();
         }
-    }
+
+		private void timer1_Tick(object sender, EventArgs e)
+		{
+            DateTime stopWatch = new DateTime();
+            stopWatch = stopWatch.AddTicks(DateTime.Now.Ticks - time.Ticks);
+            if (stopWatch.Minute == 10 && stopWatch.Second == 30)
+            {
+                if(AdmMode.AdmPassword != "")
+                {
+                    AdmMode.AdmPassword = "";
+                    AdmMode.isAdm = false;
+                    Refresh();
+                }
+            }
+
+		}
+	}
 }

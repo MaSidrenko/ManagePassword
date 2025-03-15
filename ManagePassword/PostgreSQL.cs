@@ -14,13 +14,13 @@ namespace ManagePassword
     {
         static string conn_str = "Host=localhost;Username=postgres;Password=291305;Database=postgres";
         static NpgsqlCommand temp_cmd;
-
+        static Cipher Cipher = null;
         static public DataTable PostgreRefresh()
         {
             DataTable dataTable = new DataTable();
             temp_cmd = new NpgsqlCommand("CREATE TABLE IF NOT EXISTS passwordcihper (id SERIAL PRIMARY KEY, open_string TEXT, password_hash BYTEA NOT NULL, salt BYTEA NOT NULL,aes_iv BYTEA NOT NULL);");
             single_query(temp_cmd);
-            if (AdmMode.isAdm)
+            if (AdmMode.isAdm && AdmMode.AdmPassword != "")
             {
                 temp_cmd = new NpgsqlCommand("SELECT id AS \"Number\", open_string AS \"Service\", password_hash, salt, aes_iv FROM PasswordCihper");
                 dataTable = circle_query(temp_cmd);
@@ -34,10 +34,8 @@ namespace ManagePassword
         }
         static public void PostgreInsert(string Service, string Password)
         {
-            byte[] salt = null, AESkey = null, iv = null;
-            //TODO
-            (salt, iv, AESkey) = Cipher.GenerateKeys();
-            byte[] cipher_pass = Cipher.EncryptAES(Password, AESkey, iv);
+            byte[] salt = null, AESkey = null, iv = null, cipher_pass = null;
+            Cipher = new Cipher(out salt, out AESkey, out iv, ref cipher_pass, ref Password);
 
             temp_cmd = new NpgsqlCommand("INSERT INTO PasswordCihper (open_string, password_hash, salt, aes_iv) VALUES(@open_string, @password_hash, @salt, @aes_iv)");
             Dictionary<string, object> parameters = QueriesDB.CreateParameters(Service, cipher_pass, salt, iv);
@@ -47,14 +45,14 @@ namespace ManagePassword
         static public DataTable PostgreFind(string Service)
         {
             DataTable dataTable = new DataTable();
-            if (AdmMode.isAdm)
+            if (AdmMode.isAdm && AdmMode.AdmPassword != "")
             {
                 temp_cmd = new NpgsqlCommand("SELECT id AS \"Number\", open_string AS \"Service\", password_hash, salt, aes_iv FROM PasswordCihper WHERE open_string LIKE @open");
                 temp_cmd.Parameters.AddWithValue("@open", NpgsqlDbType.Text, Service + "%");
                 dataTable = circle_query(temp_cmd);
                 return dataTable;
             }
-            else if (!AdmMode.isAdm)
+            else if (!AdmMode.isAdm && AdmMode.AdmPassword == "")
             {
                 temp_cmd = new NpgsqlCommand("SELECT id AS \"Nubmer\", open_string AS \"Service\" FROM PasswordCihper WHERE open_string LIKE @open");
                 temp_cmd.Parameters.AddWithValue("@open", NpgsqlDbType.Text, Service + "%");
@@ -74,14 +72,13 @@ namespace ManagePassword
         }
         static public void PostgreChange(string id, string Service, string Password)
         {
-            if (AdmMode.isAdm)
+            if (AdmMode.isAdm && AdmMode.AdmPassword != "")
             {
                 //TODO
-                byte[] salt = null, AESkey = null, iv = null;
-                (salt, iv, AESkey) = Cipher.GenerateKeys();
-                byte[] cipher_pass = Cipher.EncryptAES(Password, AESkey, iv);
+                byte[] salt = null, AESkey = null, iv = null, cipher_pass = null;
+				Cipher = new Cipher(out salt, out AESkey, out iv, ref cipher_pass, ref Password);
 
-                temp_cmd = new NpgsqlCommand("UPDATE PasswordCihper SET open_string = @open_string, password_hash = @password_hash, salt = @salt, aes_iv = @aes_iv WHERE id = @id");
+				temp_cmd = new NpgsqlCommand("UPDATE PasswordCihper SET open_string = @open_string, password_hash = @password_hash, salt = @salt, aes_iv = @aes_iv WHERE id = @id");
                 Dictionary<string, object> parameters = QueriesDB.CreateParameters(Service, cipher_pass, salt, iv);
                 temp_cmd.Parameters.AddWithValue("@id", Convert.ToInt32(id));
                 SetParameters_forNpg(temp_cmd, parameters);

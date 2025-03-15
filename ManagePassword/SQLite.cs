@@ -14,6 +14,7 @@ namespace ManagePassword
 	{
 		static string conn_str = "Data Source = PassData.db; Version = 3";
 		static SQLiteCommand temp_cmd;
+		static Cipher Cipher;
 		static public DataTable SQLiteRefresh()
 		{
 
@@ -35,12 +36,11 @@ namespace ManagePassword
 		}
 		static public void SQLiteInsert(string Service, string Password)
 		{
-			//TODO
 			try
 			{
 				byte[] salt = null, AESkey = null, iv = null, cipher_pass = null;
 
-				Cipher cipher = new Cipher(out salt, out AESkey, out iv, ref cipher_pass, ref Password);
+				Cipher = new Cipher(out salt, out AESkey, out iv, ref cipher_pass, ref Password);
 
 				temp_cmd = new SQLiteCommand("INSERT INTO PasswordCihper(open_string, password_hash, salt, aes_iv) VALUES(@open_string, @password_hash, @salt, @aes_iv)");
 				Dictionary<string, object> parameters = QueriesDB.CreateParameters(Service, cipher_pass, salt, iv);
@@ -85,7 +85,7 @@ namespace ManagePassword
 			if (AdmMode.isAdm)
 			{
 				byte[] salt = null, AESkey = null, iv = null, cipher_pass = null;
-				Cipher cipher = new Cipher(out salt, out AESkey, out iv, ref cipher_pass, ref Password);
+				Cipher = new Cipher(out salt, out AESkey, out iv, ref cipher_pass, ref Password);
 
 				temp_cmd = new SQLiteCommand("UPDATE PasswordCihper SET open_string = @open_string, password_hash = @password_hash, salt = @salt, aes_iv = @aes_iv WHERE id = @id");
 				Dictionary<string, object> parametres = QueriesDB.CreateParameters(Service, cipher_pass, salt, iv);
