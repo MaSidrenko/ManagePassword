@@ -15,7 +15,7 @@ namespace ManagePassword
 {
     static internal class QueriesDB
     {
-        static string BdMode = "Postgre";
+        public static string BdMode = "SQLite";
         static public Dictionary<string, object> CreateParameters(string open_string, byte[] cipher_password, byte[] salt, byte[] iv)
         {
             return new Dictionary<string, object>
