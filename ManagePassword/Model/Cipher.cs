@@ -7,85 +7,88 @@ using System.Security.Cryptography;
 
 namespace ManagePassword
 {
-	internal class Cipher
+	namespace Model
 	{
-		public byte[] Salt { get; set; }
-		public byte[] AES_key { get; set; }
-		public byte[] AESiv { get; set; }
-		public byte[] Hash_string { get; set; }
-		public string DecryptedString { get; private set; }
-		public string Input_string { get; set; }
-		
-		public Cipher(string input_string)
+		internal class Cipher
 		{
+			public byte[] Salt { get; set; }
+			public byte[] AES_key { get; set; }
+			public byte[] AESiv { get; set; }
+			public byte[] Hash_string { get; set; }
+			public string DecryptedString { get; private set; }
+			public string Input_string { get; set; }
 
-			Input_string = input_string;
-		
-		}
-		public Cipher(out string decrypt_str, out byte[] aesKey, ref byte[] salt, ref byte[] EncryptBytes,ref byte[] aesIV,ref string str)
-		{
-			aesKey = DeriveKey(str, salt);
-			decrypt_str = DecryptAES(EncryptBytes, aesKey, aesIV);
-		}
+			public Cipher(string input_string)
+			{
 
-		public (byte[], byte[], byte[]) GenerateKeys()
-		{
-			//salt - random;
-			Salt = GenerateSalt();
-			//AESIV - random;
-			AESiv = GenerateIV();
-			//AESkey - not random. Based on Master-Password;
-			AES_key = DeriveKey(AdmMode.AdmPassword, Salt);
-			return (Salt, AESiv, AES_key);
-		}
-		public byte[] DeriveKey(string password, byte[] salt, int keySize = 32, int iterations = 10000)
-		{
-			Rfc2898DeriveBytes pdkdf2 = new Rfc2898DeriveBytes(password, salt, iterations, HashAlgorithmName.SHA256);
-			byte[] key = pdkdf2.GetBytes(keySize);
-			pdkdf2.Dispose();
-			return key;
-		}
-		public byte[] GenerateSalt()
-		{
-			byte[] salt = new byte[16];
-			RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
-			rng.GetBytes(salt);
-			rng.Dispose();
-			return salt;
-		}
-		public byte[] GenerateIV()
-		{
-			byte[] iv = new byte[16];
-			RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
-			rng.GetBytes(iv);
-			rng.Dispose();
-			return iv;
-		}
-		public byte[] EncryptAES()
-		{
-			Aes aes = Aes.Create();
-			aes.Key = AES_key;
-			aes.IV = AESiv;
-			aes.Mode = CipherMode.CBC;
-			aes.Padding = PaddingMode.PKCS7;
+				Input_string = input_string;
 
-			ICryptoTransform encryptor = aes.CreateEncryptor(AES_key, AESiv);
-			byte[] inputBytes = Encoding.UTF8.GetBytes(Input_string);
-			byte[] encryptedBytes = encryptor.TransformFinalBlock(inputBytes, 0, inputBytes.Length);
-			encryptor.Dispose();
-			return encryptedBytes;
-		}
-		public string DecryptAES(byte[] CipherPassowrd, byte[] key, byte[] iv)
-		{
-			Aes aes = Aes.Create();
-			aes.Key = key;
-			aes.IV = iv;
-			aes.Mode = CipherMode.CBC;
-			aes.Padding = PaddingMode.PKCS7;
+			}
+			public Cipher(out string decrypt_str, out byte[] aesKey, ref byte[] salt, ref byte[] EncryptBytes, ref byte[] aesIV, ref string str)
+			{
+				aesKey = DeriveKey(str, salt);
+				decrypt_str = DecryptAES(EncryptBytes, aesKey, aesIV);
+			}
 
-			ICryptoTransform decryptor = aes.CreateDecryptor();
-			byte[] decryptedBytes = decryptor.TransformFinalBlock(CipherPassowrd, 0, CipherPassowrd.Length);
-			return Encoding.UTF8.GetString(decryptedBytes);
-		}
+			public (byte[], byte[], byte[]) GenerateKeys()
+			{
+				//salt - random;
+				Salt = GenerateSalt();
+				//AESIV - random;
+				AESiv = GenerateIV();
+				//AESkey - not random. Based on Master-Password;
+				AES_key = DeriveKey(AdmMode.AdmPassword, Salt);
+				return (Salt, AESiv, AES_key);
+			}
+			public byte[] DeriveKey(string password, byte[] salt, int keySize = 32, int iterations = 10000)
+			{
+				Rfc2898DeriveBytes pdkdf2 = new Rfc2898DeriveBytes(password, salt, iterations, HashAlgorithmName.SHA256);
+				byte[] key = pdkdf2.GetBytes(keySize);
+				pdkdf2.Dispose();
+				return key;
+			}
+			public byte[] GenerateSalt()
+			{
+				byte[] salt = new byte[16];
+				RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
+				rng.GetBytes(salt);
+				rng.Dispose();
+				return salt;
+			}
+			public byte[] GenerateIV()
+			{
+				byte[] iv = new byte[16];
+				RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
+				rng.GetBytes(iv);
+				rng.Dispose();
+				return iv;
+			}
+			public byte[] EncryptAES()
+			{
+				Aes aes = Aes.Create();
+				aes.Key = AES_key;
+				aes.IV = AESiv;
+				aes.Mode = CipherMode.CBC;
+				aes.Padding = PaddingMode.PKCS7;
+
+				ICryptoTransform encryptor = aes.CreateEncryptor(AES_key, AESiv);
+				byte[] inputBytes = Encoding.UTF8.GetBytes(Input_string);
+				byte[] encryptedBytes = encryptor.TransformFinalBlock(inputBytes, 0, inputBytes.Length);
+				encryptor.Dispose();
+				return encryptedBytes;
+			}
+			public string DecryptAES(byte[] CipherPassowrd, byte[] key, byte[] iv)
+			{
+				Aes aes = Aes.Create();
+				aes.Key = key;
+				aes.IV = iv;
+				aes.Mode = CipherMode.CBC;
+				aes.Padding = PaddingMode.PKCS7;
+
+				ICryptoTransform decryptor = aes.CreateDecryptor();
+				byte[] decryptedBytes = decryptor.TransformFinalBlock(CipherPassowrd, 0, CipherPassowrd.Length);
+				return Encoding.UTF8.GetString(decryptedBytes);
+			}
+		} 
 	}
 }
