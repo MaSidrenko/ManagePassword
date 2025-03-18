@@ -48,11 +48,12 @@ namespace ManagePassword
 		}
 		//Не помню зачем
 		//TODO
+		//Нарушение паттерна MVP?
 		public DataTable DecryptPasswordDB(DataTable table)
 		{
 			foreach (DataRow row in table.Rows)
 			{
-				Cipher cihper = new Cipher(AdmMode.AdmPassword);
+				Model.Cipher cihper = new Model.Cipher(Model.AdmMode.AdmPassword);
 				cihper.Hash_string = (byte[])row["password_hash"];
 				cihper.Salt  = (byte[])row["salt"];
 				cihper.AESiv = (byte[])row["aes_iv"];
@@ -86,13 +87,13 @@ namespace ManagePassword
 		private void cmAdd_MouseDown(object sender, MouseEventArgs e)
 		{
 			adminMode_dialog = new AdminForm(this);
-			if (AdmMode.AdmPassword == "")
+			if (Model.AdmMode.AdmPassword == "")
 			{
 				MessageBox.Show("Type Master Password!", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
 				adminMode_dialog.Show();
 				MessageBox.Show("Click second time on Add!");
 			}
-			else if (AdmMode.AdmPassword != "")
+			else if (Model.AdmMode.AdmPassword != "")
 			{
 
 				FormAdd formAdd_dialog = new FormAdd();
@@ -225,9 +226,9 @@ namespace ManagePassword
 			stopWatch = stopWatch.AddTicks(DateTime.Now.Ticks - time.Ticks);
 			if (stopWatch.Minute == 10 && stopWatch.Second == 30)
 			{
-				if (AdmMode.AdmPassword != "")
+				if (Model.AdmMode.AdmPassword != "")
 				{
-					AdmMode.ClearMasterPassword();
+					Model.AdmMode.ClearMasterPassword();
 					Refresh();
 				}
 			}

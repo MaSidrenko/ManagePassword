@@ -16,8 +16,8 @@ namespace ManagePassword
         {
             static string conn_str = "Host=localhost;Username=postgres;Password=291305;Database=postgres";
             static NpgsqlCommand temp_cmd;
-            static Cipher Cipher = null;
-            static public DataTable PostgreRefresh()
+            static Cipher cipher = null;
+            static public DataTable Refresh()
             {
                 DataTable dataTable = new DataTable();
                 temp_cmd = new NpgsqlCommand("CREATE TABLE IF NOT EXISTS passwordcihper (id SERIAL PRIMARY KEY, open_string TEXT, password_hash BYTEA NOT NULL, salt BYTEA NOT NULL,aes_iv BYTEA NOT NULL);");
@@ -34,20 +34,19 @@ namespace ManagePassword
                     return circle_query(temp_cmd);
                 }
             }
-            static public void PostgreInsert(string Service, string Password)
+            static public void Insert(string Service, string Password)
             {
-                Cipher = new Cipher(Password);
-                Cipher.GenerateKeys();
-                Cipher.Hash_string = Cipher.EncryptAES();
+                cipher = new Cipher(Password);
+                cipher.GenerateKeys();
+                cipher.Hash_string = cipher.EncryptAES();
 
 
 
                 temp_cmd = new NpgsqlCommand("INSERT INTO PasswordCihper (open_string, password_hash, salt, aes_iv) VALUES(@open_string, @password_hash, @salt, @aes_iv)");
-                Dictionary<string, object> parameters = CreateParameters_for_Postgre(Service, Cipher.Hash_string, Cipher.Salt, Cipher.AESiv);
-                SetParameters_forNpg(temp_cmd, parameters);
-                single_query(temp_cmd);
+				Dictionary<string, object> parameters = Create_and_set_parameters(temp_cmd, Service, cipher.Hash_string, cipher.Salt, cipher.AESiv);
+				single_query(temp_cmd);
             }
-            static public DataTable PostgreFind(string Service)
+            static public DataTable Find(string Service)
             {
                 DataTable dataTable = new DataTable();
                 if (AdmMode.isAdm && AdmMode.AdmPassword != "")
@@ -66,41 +65,49 @@ namespace ManagePassword
                 }
                 else
                 {
-                    return PostgreRefresh();
+                    return Refresh();
                 }
             }
-            static public void PostgreDelete(string delItem)
+            static public void Delete(string delItem)
             {
                 temp_cmd = new NpgsqlCommand("DELETE FROM passwordcihper WHERE id = @id");
                 temp_cmd.Parameters.AddWithValue("@id", Convert.ToInt32(delItem));
                 single_query(temp_cmd);
             }
-            static public void PostgreChange(string id, string Service, string Password)
+            static public void Change(string id, string Service, string Password)
             {
                 if (AdmMode.isAdm && AdmMode.AdmPassword != "")
                 {
                     //TODO
-                    Cipher = new Cipher(Password);
-                    Cipher.GenerateKeys();
-                    Cipher.Hash_string = Cipher.EncryptAES();
+                    cipher = new Cipher(Password);
+                    cipher.GenerateKeys();
+                    cipher.Hash_string = cipher.EncryptAES();
 
 
 
                     temp_cmd = new NpgsqlCommand("UPDATE PasswordCihper SET open_string = @open_string, password_hash = @password_hash, salt = @salt, aes_iv = @aes_iv WHERE id = @id");
-                    Dictionary<string, object> parameters = CreateParameters_for_Postgre(Service, Cipher.Hash_string, Cipher.Salt, Cipher.AESiv);
                     temp_cmd.Parameters.AddWithValue("@id", Convert.ToInt32(id));
-                    SetParameters_forNpg(temp_cmd, parameters);
+					Dictionary<string, object> parameters = Create_and_set_parameters(temp_cmd, Service, cipher.Hash_string, cipher.Salt, cipher.AESiv);
 
                     single_query(temp_cmd);
 
                 }
             }
-            static public void SetParameters_forNpg(NpgsqlCommand cmd, Dictionary<string, object> param)
+            static public Dictionary<string, object> Create_and_set_parameters(NpgsqlCommand cmd, string open_string, byte[] cipher_password, byte[] salt, byte[] iv)
             {
-                foreach (KeyValuePair<string, object> prm in param)
+                Dictionary<string, object> param = new Dictionary<string, object>
+			{
+				{ "@open_string", open_string },
+				{ "@password_hash", cipher_password },
+				{ "@salt", salt },
+				{ "@aes_iv", iv }
+			};
+
+				foreach (KeyValuePair<string, object> prm in param)
                 {
                     cmd.Parameters.AddWithValue(prm.Key, prm.Value);
                 }
+                return param;
             }
             static public DataTable circle_query(NpgsqlCommand cmd)
             {
@@ -146,21 +153,10 @@ namespace ManagePassword
                     MessageBox.Show(e.Message);
                 }
             }
-            static public Dictionary<string, object> CreateParameters_for_Postgre(string open_string, byte[] cipher_password, byte[] salt, byte[] iv/*Cipher cipher*/)
+            
+            static public string read_cihper_query(string query, string cihper_string)
             {
-                return new Dictionary<string, object>
-            {
-                { "@open_string", open_string },
-                { "@password_hash", cipher_password },
-                { "@salt", salt },
-                { "@aes_iv", iv }
-            };
-            }
-            static public (byte[], byte[], byte[]) read_cihper_query(string query)
-            {
-                byte[] salt = null;
-                byte[] pass_hash = null;
-                byte[] iv = null;
+                cipher = new Cipher(cihper_string);
                 NpgsqlConnection conn_DB = new NpgsqlConnection(conn_str);
                 NpgsqlCommand cmd = new NpgsqlCommand(query, conn_DB);
                 conn_DB.Open();
@@ -169,14 +165,16 @@ namespace ManagePassword
                 NpgsqlDataReader reader = cmd.ExecuteReader();
                 if (reader.Read())
                 {
-                    (salt, pass_hash, iv) = FetchSecurityKeys(reader);
+                      (cipher.Salt, cipher.Hash_string, cipher.AESiv) = FetchSecurityKeys(reader);
                 }
-                reader.Close();
+				cipher.AES_key = cipher.DeriveKey(cihper_string, cipher.Salt);
+				reader.Close();
                 cmd.Dispose();
                 conn_DB.Close();
                 conn_DB.Dispose();
-                return (salt, pass_hash, iv);
-            }
+				return cipher.DecryptAES(cipher.Hash_string, cipher.AES_key, cipher.AESiv);
+
+			}
             public static (byte[], byte[], byte[]) FetchSecurityKeys(NpgsqlDataReader reader)
             {
                 byte[] salt = (byte[])reader["salt"];

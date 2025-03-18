@@ -17,27 +17,27 @@ namespace ManagePassword
     {
         static internal class QueriesDB
         {
-            public static string BdMode = "SQLite";
+            public static string BdMode = "Postgre";
             static public void Insert(string tb_insert_open, string tb_insert_secret)
             {
                 if (BdMode == "Postgre")
                 {
-                    Model.PostgreSQL.PostgreInsert(tb_insert_open, tb_insert_secret);
+                    Model.PostgreSQL.Insert(tb_insert_open, tb_insert_secret);
                 }
                 else if (BdMode == "SQLite")
                 {
-                    Model.SQLite.SQLiteInsert(tb_insert_open, tb_insert_secret);
+                    Model.SQLite.Insert(tb_insert_open, tb_insert_secret);
                 }
             }
             static public DataTable Refresh()
             {
                 if (BdMode == "Postgre")
                 {
-                    return Model.PostgreSQL.PostgreRefresh();
+                    return Model.PostgreSQL.Refresh();
                 }
                 else if (BdMode == "SQLite")
                 {
-                    return Model.SQLite.SQLiteRefresh();
+                    return Model.SQLite.Refresh();
                 }
                 else
                 {
@@ -50,11 +50,11 @@ namespace ManagePassword
 
                 if (BdMode == "Postgre")
                 {
-                    return Model.PostgreSQL.PostgreFind(tb_find_open);
+                    return Model.PostgreSQL.Find(tb_find_open);
                 }
                 else if (BdMode == "SQLite")
                 {
-                    return Model.SQLite.SQLiteFind(tb_find_open);
+                    return Model.SQLite.Find(tb_find_open);
                 }
                 else
                 {
@@ -65,22 +65,22 @@ namespace ManagePassword
             {
                 if (BdMode == "Postgre")
                 {
-                    Model.PostgreSQL.PostgreDelete(tb_del_id);
+                    Model.PostgreSQL.Delete(tb_del_id);
                 }
                 else if (BdMode == "SQLite")
                 {
-                    Model.SQLite.SQLiteDelte(tb_del_id);
+                    Model.SQLite.Delete(tb_del_id);
                 }
             }
             static public void Change(string tb_change_open, string tb_change_secret, string tb_change_id)
             {
                 if (BdMode == "Postgre")
                 {
-                    Model.PostgreSQL.PostgreChange(tb_change_id, tb_change_open, tb_change_secret);
+                    Model.PostgreSQL.Change(tb_change_id, tb_change_open, tb_change_secret);
                 }
                 else if (BdMode == "SQLite")
                 {
-                    Model.SQLite.SQLiteChange(tb_change_id, tb_change_open, tb_change_secret);
+                    Model.SQLite.Change(tb_change_id, tb_change_open, tb_change_secret);
                 }
             } 
         }

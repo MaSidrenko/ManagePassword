@@ -25,10 +25,10 @@ namespace ManagePassword
 
         private void btnEnterToAdminMode_Click(object sender, EventArgs e)
         {
-            if (AdmMode.AuthenticateAdm(tbAdmin.Text))
+            if (Model.AdmMode.AuthenticateAdm(tbAdmin.Text))
             {
-                AdmMode.isAdm = true;
-                AdmMode.GetAdmPassword(tbAdmin.Text);
+                Model.AdmMode.isAdm = true;
+                Model.AdmMode.GetAdmPassword(tbAdmin.Text);
                 mp_dialog.Refresh();
                 tbAdmin.Clear();
                 this.Close();
@@ -46,10 +46,10 @@ namespace ManagePassword
 
         private void btnExit_Click(object sender, EventArgs e)
         {
-            if (AdmMode.isAdm)
+            if (Model.AdmMode.isAdm)
             {
-                AdmMode.AdmPassword = "";
-                AdmMode.isAdm = false;
+                Model.AdmMode.AdmPassword = "";
+                Model.AdmMode.isAdm = false;
                 mp_dialog.Refresh();
             }
             this.Close();

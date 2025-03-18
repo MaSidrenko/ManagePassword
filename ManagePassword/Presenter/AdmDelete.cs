@@ -19,9 +19,9 @@ namespace ManagePassword
 
         private void btnOk_Click(object sender, EventArgs e)
         {
-            if(AdmMode.isAdm)
+            if(Model.AdmMode.isAdm)
             {
-                AdmMode.DeleteAdm(tbDel.Text);
+                Model.AdmMode.DeleteAdm(tbDel.Text);
                 this.Close();
             }
         }

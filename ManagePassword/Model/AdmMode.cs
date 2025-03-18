@@ -31,7 +31,7 @@ namespace ManagePassword
 				try
 				{
 					cipher = new Model.Cipher(password);
-					cipher.GenerateKeys();
+					cipher.GenerateKeys(password);
 					cipher.Hash_string = cipher.EncryptAES();
 
 					if (Model.QueriesDB.BdMode == "Postgre")
@@ -48,7 +48,7 @@ namespace ManagePassword
 					{
 
 						SQLiteCommand if_cmd = new SQLiteCommand("CREATE TABLE IF NOT EXISTS Admins(id INTEGER PRIMARY KEY CHECK(id = 1), admin_name TEXT, password_hash BLOB NOT NULL, salt BLOB, aes_iv BLOB NOT NULL)");
-						Model.SQLite.single_query_for_SQLite(if_cmd);
+						Model.SQLite.single_query(if_cmd);
 
 						SQLiteCommand cmd = new SQLiteCommand($"INSERT INTO Admins(id, admin_name, password_hash, salt, aes_iv) VALUES(@id, @username, @password_hash, @salt, @aes_iv)");
 						cmd.Parameters.AddWithValue("@id", 1);
@@ -57,7 +57,7 @@ namespace ManagePassword
 						cmd.Parameters.AddWithValue("@password_hash", cipher.Hash_string);
 						cmd.Parameters.AddWithValue("@aes_iv", cipher.AESiv);
 
-						Model.SQLite.single_query_for_SQLite(cmd);
+						Model.SQLite.single_query(cmd);
 					}
 				}
 				catch (Exception e)
@@ -69,24 +69,18 @@ namespace ManagePassword
 			{
 				try
 				{
-					cipher = new Model.Cipher(password);
+					string decrypted_pass = "";
 					if (Model.QueriesDB.BdMode == "Postgre")
 					{
-						(cipher.Salt, cipher.Hash_string, cipher.AESiv) = Model.PostgreSQL.read_cihper_query($"SELECT password_hash, salt, aes_iv FROM Admins WHERE admin_name = 'Admin'");
+						decrypted_pass = Model.PostgreSQL.read_cihper_query($"SELECT password_hash, salt, aes_iv FROM Admins WHERE admin_name = 'Admin'", password);
 					}
 					else if (Model.QueriesDB.BdMode == "SQLite")
 					{
-						(cipher.Salt, cipher.Hash_string, cipher.AESiv) = Model.SQLite.read_cihper_query($"SELECT password_hash, salt, aes_iv FROM Admins WHERE admin_name = 'Admin'");
+						decrypted_pass = Model.SQLite.read_cihper_query($"SELECT password_hash, salt, aes_iv FROM Admins WHERE admin_name = 'Admin'", password);
 					}
 					if (cipher.Salt == null || cipher.Hash_string == null || cipher.AESiv == null)
 						return false;
-					byte[] encryptedPasswordBytes = cipher.Hash_string;
-
-					cipher.AES_key = cipher.DeriveKey(password, cipher.Salt);
-
-					string decrypted_pass = cipher.DecryptAES(cipher.Hash_string, cipher.AES_key, cipher.AESiv);
-
-
+					
 					return decrypted_pass == password;
 				}
 				catch (Exception e)
@@ -97,30 +91,26 @@ namespace ManagePassword
 			}
 			public static void DeleteAdm(string password)
 			{
+				string decrypted_pass = "";
 
 				cipher = new Model.Cipher(password);
 
 				if (Model.QueriesDB.BdMode == "Postgre")
 				{
-					(cipher.Salt, cipher.Hash_string, cipher.AESiv) = Model.PostgreSQL.read_cihper_query($"SELECT password_hash, salt, aes_iv FROM Admins WHERE admin_name = 'Admin'");
+					decrypted_pass = Model.PostgreSQL.read_cihper_query($"SELECT password_hash, salt, aes_iv FROM Admins WHERE admin_name = 'Admin'", password);
 				}
 				else if (Model.QueriesDB.BdMode == "SQLite")
 				{
-					(cipher.Salt, cipher.Hash_string, cipher.AESiv) = Model.SQLite.read_cihper_query($"SELECT password_hash, salt, aes_iv FROM Admins WHERE admin_name = 'Admin'");
+					decrypted_pass = Model.SQLite.read_cihper_query($"SELECT password_hash, salt, aes_iv FROM Admins WHERE admin_name = 'Admin'", password);
 				}
 				if (cipher.Salt == null || cipher.Hash_string == null || cipher.AESiv == null)
 					MessageBox.Show("User not found!");
-				
-				byte[] encryptedPasswordBytes = cipher.Hash_string;
 
-				cipher.AES_key = cipher.DeriveKey(password, cipher.Salt);
-
-				string decrypted_pass = cipher.DecryptAES(cipher.Hash_string, cipher.AES_key, cipher.AESiv);
 
 				if (decrypted_pass == password)
 				{
 					string delteQuery = "DELETE FROM Admins WHERE admin_name = 'Admin' AND password_hash = @password_hash";
-					if (Model.QueriesDB.BdMode == "Posetre")
+					if (Model.QueriesDB.BdMode == "Postgre")
 					{
 						NpgsqlCommand cmd = new NpgsqlCommand(delteQuery);
 						cmd.Parameters.AddWithValue("@password_hash", NpgsqlDbType.Bytea, cipher.Hash_string);
@@ -133,7 +123,7 @@ namespace ManagePassword
 						SQLiteCommand cmd = new SQLiteCommand(delteQuery);
 						cmd.Parameters.AddWithValue("@password_hash", cipher.Hash_string);
 
-						Model.SQLite.single_query_for_SQLite(cmd);
+						Model.SQLite.single_query(cmd);
 						cmd.Dispose();
 					}
 					AdmPassword = "";
@@ -145,6 +135,6 @@ namespace ManagePassword
 				AdmPassword = "";
 				isAdm = false;
 			}
-		} 
+		}
 	}
 }

@@ -20,24 +20,24 @@ namespace ManagePassword
 
 			public Cipher(string input_string)
 			{
-
 				Input_string = input_string;
 
 			}
-			public Cipher(out string decrypt_str, out byte[] aesKey, ref byte[] salt, ref byte[] EncryptBytes, ref byte[] aesIV, ref string str)
+			/*public void SetPass(string password)
 			{
-				aesKey = DeriveKey(str, salt);
-				decrypt_str = DecryptAES(EncryptBytes, aesKey, aesIV);
-			}
+				Salt = GenerateSalt();
+				AESiv = GenerateIV();
+				AES_key = DeriveKey(password, Salt);
+			}*/
 
-			public (byte[], byte[], byte[]) GenerateKeys()
+			public (byte[], byte[], byte[]) GenerateKeys(string password = "")
 			{
 				//salt - random;
 				Salt = GenerateSalt();
 				//AESIV - random;
 				AESiv = GenerateIV();
 				//AESkey - not random. Based on Master-Password;
-				AES_key = DeriveKey(AdmMode.AdmPassword, Salt);
+				AES_key = DeriveKey(password != "" ? password : AdmMode.AdmPassword, Salt);
 				return (Salt, AESiv, AES_key);
 			}
 			public byte[] DeriveKey(string password, byte[] salt, int keySize = 32, int iterations = 10000)

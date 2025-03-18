@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ManagePassword.Model;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -20,8 +21,7 @@ namespace ManagePassword
         private void btnOk_Click(object sender, EventArgs e)
         {
             string password = tbCreatePassword.Text;
-            //Cipher.SetPass(password);
-            AdmMode.RegistrAdm(password);
+            Model.AdmMode.RegistrAdm(password);
             this.Close();
             this.Dispose();
         }
