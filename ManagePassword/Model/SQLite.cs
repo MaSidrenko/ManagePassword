@@ -21,17 +21,17 @@ namespace ManagePassword
 
 			DataTable dataTable = new DataTable();
 			temp_cmd = new SQLiteCommand("CREATE TABLE IF NOT EXISTS PasswordCihper(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, open_string TEXT, password_hash BLOB NOT NULL, salt BLOB NOT NULL, aes_iv BLOB NOT NULL);");
-			single_query(temp_cmd);
+			single_query_for_SQLite(temp_cmd);
 			if (AdmMode.isAdm)
 			{
 				temp_cmd = new SQLiteCommand("SELECT id AS \"Number\", open_string AS \"Service\", password_hash, salt, aes_iv FROM PasswordCihper");
-				dataTable = circle_query(temp_cmd);
+				dataTable = circle_query_for_SQLite(temp_cmd);
 				return dataTable;
 			}
 			else
 			{
 				temp_cmd = new SQLiteCommand("SELECT id AS \"Number\", open_string AS \"Service\" FROM PasswordCihper");
-				dataTable = circle_query(temp_cmd);
+				dataTable = circle_query_for_SQLite(temp_cmd);
 				return dataTable;
 			}
 		}
@@ -39,14 +39,16 @@ namespace ManagePassword
 		{
 			try
 			{
-				byte[] salt = null, AESkey = null, iv = null, cipher_pass = null;
 
-				Cipher = new Cipher(out salt, out AESkey, out iv, ref cipher_pass, ref Password);
+				Cipher = new Cipher(Password);
+				Cipher.GenerateKeys();
+				Cipher.Hash_string = Cipher.EncryptAES();
+
 
 				temp_cmd = new SQLiteCommand("INSERT INTO PasswordCihper(open_string, password_hash, salt, aes_iv) VALUES(@open_string, @password_hash, @salt, @aes_iv)");
-				Dictionary<string, object> parameters = QueriesDB.CreateParameters(Service, cipher_pass, salt, iv);
-				SetParameters_forSQLite(temp_cmd, parameters);
-				single_query(temp_cmd);
+				Dictionary<string, object> parameters = CreateParameters_for_SQLite(Service, Cipher.Hash_string, Cipher.Salt, Cipher.AESiv);
+				SetParameters_for_SQLite(temp_cmd, parameters);
+				single_query_for_SQLite(temp_cmd);
 			}
 			catch (Exception ex)
 			{
@@ -60,14 +62,14 @@ namespace ManagePassword
 			{
 				temp_cmd = new SQLiteCommand("SELECT id AS \"Number\", open_string AS \"Service\", password_hash, salt, aes_iv FROM PasswordCihper WHERE open_string LIKE @open");
 				temp_cmd.Parameters.AddWithValue("@open", Service + "%");
-				dataTable = circle_query(temp_cmd);
+				dataTable = circle_query_for_SQLite(temp_cmd);
 				return dataTable;
 			}
 			else if (!AdmMode.isAdm)
 			{
 				temp_cmd = new SQLiteCommand("SELECT id AS \"Nubmer\", open_string AS \"Service\" FROM PasswordCihper WHERE open_string LIKE @open");
 				temp_cmd.Parameters.AddWithValue("@open", Service + "%");
-				dataTable = circle_query(temp_cmd);
+				dataTable = circle_query_for_SQLite(temp_cmd);
 				return dataTable;
 			}
 			else
@@ -79,24 +81,26 @@ namespace ManagePassword
 		{
 			temp_cmd = new SQLiteCommand("DELETE FROM PasswordCihper WHERE id = @id");
 			temp_cmd.Parameters.AddWithValue("@id", Convert.ToInt32(delItem));
-			single_query(temp_cmd);
+			single_query_for_SQLite(temp_cmd);
 		}
 		static public void SQLiteChange(string id, string Service, string Password)
 		{
 			if (AdmMode.isAdm)
 			{
-				byte[] salt = null, AESkey = null, iv = null, cipher_pass = null;
-				Cipher = new Cipher(out salt, out AESkey, out iv, ref cipher_pass, ref Password);
+
+				Cipher = new Cipher(Password);
+				Cipher.GenerateKeys();
+				Cipher.Hash_string = Cipher.EncryptAES();
 
 				temp_cmd = new SQLiteCommand("UPDATE PasswordCihper SET open_string = @open_string, password_hash = @password_hash, salt = @salt, aes_iv = @aes_iv WHERE id = @id");
-				Dictionary<string, object> parametres = QueriesDB.CreateParameters(Service, cipher_pass, salt, iv);
-				SetParameters_forSQLite(temp_cmd, parametres);
+				Dictionary<string, object> parametres = CreateParameters_for_SQLite(Service, Cipher.Hash_string, Cipher.Salt, Cipher.AESiv);
+				SetParameters_for_SQLite(temp_cmd, parametres);
 				temp_cmd.Parameters.AddWithValue("@id", Convert.ToInt32(id));
 
-				single_query(temp_cmd);
+				single_query_for_SQLite(temp_cmd);
 			}
 		}
-		static public DataTable circle_query(SQLiteCommand cmd)
+		static public DataTable circle_query_for_SQLite(SQLiteCommand cmd)
 		{
 			DataTable dataTable = new DataTable();
 			SQLiteConnection conn = new SQLiteConnection(conn_str);
@@ -125,7 +129,7 @@ namespace ManagePassword
 			}
 			return dataTable;
 		}
-		static public void single_query(SQLiteCommand cmd)
+		static public void single_query_for_SQLite(SQLiteCommand cmd)
 		{
 			try
 			{
@@ -145,13 +149,24 @@ namespace ManagePassword
 				MessageBox.Show(ex.Message);
 			}
 		}
-		static public void SetParameters_forSQLite(SQLiteCommand cmd, Dictionary<string, object> param)
+		static public void SetParameters_for_SQLite(SQLiteCommand cmd, Dictionary<string, object> param)
 		{
 			foreach (KeyValuePair<string, object> prm in param)
 			{
 				cmd.Parameters.AddWithValue(prm.Key, prm.Value);
 			}
 		}
+		static public Dictionary<string, object> CreateParameters_for_SQLite(string open_string, byte[] cipher_password, byte[] salt, byte[] iv)
+		{
+			return new Dictionary<string, object>
+			{
+				{ "@open_string", open_string },
+				{ "@password_hash", cipher_password },
+				{ "@salt", salt },
+				{ "@aes_iv", iv }
+			};
+		}
+
 		static public (byte[], byte[], byte[]) read_cihper_query(string query)
 		{
 			byte[] salt = null;

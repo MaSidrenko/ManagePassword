@@ -43,7 +43,6 @@
 			this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.FindBox = new System.Windows.Forms.TextBox();
 			this.timer1 = new System.Windows.Forms.Timer(this.components);
-			this.lblTime = new System.Windows.Forms.Label();
 			((System.ComponentModel.ISupportInitialize)(this.dgvDB)).BeginInit();
 			this.contextMenuStrip1.SuspendLayout();
 			this.SuspendLayout();
@@ -61,7 +60,7 @@
 			this.dgvDB.GridColor = System.Drawing.SystemColors.ControlText;
 			this.dgvDB.Location = new System.Drawing.Point(12, 44);
 			this.dgvDB.Name = "dgvDB";
-			this.dgvDB.Size = new System.Drawing.Size(578, 473);
+			this.dgvDB.Size = new System.Drawing.Size(767, 473);
 			this.dgvDB.TabIndex = 0;
 			this.dgvDB.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dgvDB_CellMouseClick);
 			this.dgvDB.CellMouseDoubleClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dgvDB_CellMouseDoubleClick);
@@ -164,22 +163,12 @@
 			this.timer1.Interval = 200;
 			this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
 			// 
-			// lblTime
-			// 
-			this.lblTime.AutoSize = true;
-			this.lblTime.Location = new System.Drawing.Point(634, 106);
-			this.lblTime.Name = "lblTime";
-			this.lblTime.Size = new System.Drawing.Size(13, 13);
-			this.lblTime.TabIndex = 2;
-			this.lblTime.Text = "1";
-			// 
 			// ManagePasswordForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.SystemColors.ActiveCaption;
 			this.ClientSize = new System.Drawing.Size(791, 529);
-			this.Controls.Add(this.lblTime);
 			this.Controls.Add(this.FindBox);
 			this.Controls.Add(this.dgvDB);
 			this.ForeColor = System.Drawing.SystemColors.ControlText;
@@ -209,7 +198,6 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
 		private System.Windows.Forms.Timer timer1;
-		private System.Windows.Forms.Label lblTime;
 	}
 }
 

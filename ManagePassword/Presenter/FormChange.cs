@@ -41,7 +41,7 @@ namespace ManagePassword
             {
                 tbChangePassword.Text = password;
             }
-            QueriesDB.Change(tbChangeService.Text, tbChangePassword.Text, id);
+            Model.QueriesDB.Change(tbChangeService.Text, tbChangePassword.Text, id);
             lblID.Text = "Selected id: ";
         }
 

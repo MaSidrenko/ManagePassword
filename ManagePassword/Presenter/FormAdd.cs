@@ -21,7 +21,7 @@ namespace ManagePassword
         {
             if (tbServiceAdd.Text != "" && tbPasswordAdd.Text != "")
             {
-                QueriesDB.Insert(tbServiceAdd.Text, tbPasswordAdd.Text);
+                Model.QueriesDB.Insert(tbServiceAdd.Text, tbPasswordAdd.Text);
             }
             else if (tbServiceAdd.Text == "" && tbPasswordAdd.Text == "")
             {
