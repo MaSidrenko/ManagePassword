@@ -34,11 +34,14 @@ namespace ManagePassword
         }
         static public void PostgreInsert(string Service, string Password)
         {
-            byte[] salt = null, AESkey = null, iv = null, cipher_pass = null;
-            Cipher = new Cipher(out salt, out AESkey, out iv, ref cipher_pass, ref Password);
+            Cipher = new Cipher(Password);
+            Cipher.GenerateKeys();
+            Cipher.Hash_string = Cipher.EncryptAES();
+
+
 
             temp_cmd = new NpgsqlCommand("INSERT INTO PasswordCihper (open_string, password_hash, salt, aes_iv) VALUES(@open_string, @password_hash, @salt, @aes_iv)");
-            Dictionary<string, object> parameters = QueriesDB.CreateParameters(Service, cipher_pass, salt, iv);
+            Dictionary<string, object> parameters = CreateParameters_for_Postgre(Service, Cipher.Hash_string, Cipher.Salt, Cipher.AESiv);
             SetParameters_forNpg(temp_cmd, parameters);
             single_query(temp_cmd);
         }
@@ -75,11 +78,14 @@ namespace ManagePassword
             if (AdmMode.isAdm && AdmMode.AdmPassword != "")
             {
                 //TODO
-                byte[] salt = null, AESkey = null, iv = null, cipher_pass = null;
-				Cipher = new Cipher(out salt, out AESkey, out iv, ref cipher_pass, ref Password);
+                Cipher = new Cipher(Password);
+                Cipher.GenerateKeys();
+                Cipher.Hash_string = Cipher.EncryptAES();
+
+
 
 				temp_cmd = new NpgsqlCommand("UPDATE PasswordCihper SET open_string = @open_string, password_hash = @password_hash, salt = @salt, aes_iv = @aes_iv WHERE id = @id");
-                Dictionary<string, object> parameters = QueriesDB.CreateParameters(Service, cipher_pass, salt, iv);
+                Dictionary<string, object> parameters = CreateParameters_for_Postgre(Service, Cipher.Hash_string, Cipher.Salt, Cipher.AESiv);
                 temp_cmd.Parameters.AddWithValue("@id", Convert.ToInt32(id));
                 SetParameters_forNpg(temp_cmd, parameters);
 
@@ -138,6 +144,16 @@ namespace ManagePassword
                 MessageBox.Show(e.Message);
             }
         }
+            static public Dictionary<string, object> CreateParameters_for_Postgre(string open_string, byte[] cipher_password, byte[] salt, byte[] iv/*Cipher cipher*/)
+            {
+                return new Dictionary<string, object>
+            {
+                { "@open_string", open_string },
+                { "@password_hash", cipher_password },
+                { "@salt", salt },
+                { "@aes_iv", iv }
+            };
+            }
         static public (byte[], byte[], byte[]) read_cihper_query(string query)
         {
             byte[] salt = null;
