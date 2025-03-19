@@ -21,7 +21,6 @@ namespace ManagePassword
 			public Cipher(string input_string)
 			{
 				Input_string = input_string;
-
 			}
 			/*public void SetPass(string password)
 			{
@@ -63,7 +62,7 @@ namespace ManagePassword
 				rng.Dispose();
 				return iv;
 			}
-			public byte[] EncryptAES()
+			public void Encrypt()
 			{
 				Aes aes = Aes.Create();
 				aes.Key = AES_key;
@@ -75,9 +74,9 @@ namespace ManagePassword
 				byte[] inputBytes = Encoding.UTF8.GetBytes(Input_string);
 				byte[] encryptedBytes = encryptor.TransformFinalBlock(inputBytes, 0, inputBytes.Length);
 				encryptor.Dispose();
-				return encryptedBytes;
+				Hash_string = encryptedBytes;
 			}
-			public string DecryptAES(byte[] CipherPassowrd, byte[] key, byte[] iv)
+			public string Decrypt(byte[] CipherPassowrd, byte[] key, byte[] iv)
 			{
 				Aes aes = Aes.Create();
 				aes.Key = key;

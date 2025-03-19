@@ -15,14 +15,11 @@ namespace ManagePassword
 	{
 		static internal class SQLite
 		{
-			static string conn_str = "Data Source = PassData.db; Version = 3";
-			static SQLiteCommand temp_cmd;
-			static Cipher cipher;
+			const string CONN_STR = "Data Source = PassData.db; Version = 3";
 			static public DataTable Refresh()
 			{
-
 				DataTable dataTable = new DataTable();
-				temp_cmd = new SQLiteCommand("CREATE TABLE IF NOT EXISTS PasswordCihper(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, open_string TEXT, password_hash BLOB NOT NULL, salt BLOB NOT NULL, aes_iv BLOB NOT NULL);");
+				SQLiteCommand temp_cmd = new SQLiteCommand("CREATE TABLE IF NOT EXISTS PasswordCihper(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, open_string TEXT, password_hash BLOB NOT NULL, salt BLOB NOT NULL, aes_iv BLOB NOT NULL);");
 				single_query(temp_cmd);
 				if (AdmMode.isAdm)
 				{
@@ -40,16 +37,9 @@ namespace ManagePassword
 			static public void Insert(string Service, string Password)
 			{
 				try
-				{
-
-					cipher = new Cipher(Password);
-					cipher.GenerateKeys();
-					cipher.Hash_string = cipher.EncryptAES();
-
-
-					temp_cmd = new SQLiteCommand("INSERT INTO PasswordCihper(open_string, password_hash, salt, aes_iv) VALUES(@open_string, @password_hash, @salt, @aes_iv)");
-					Dictionary<string, object> parameters = Create_and_set_parameters(temp_cmd, Service, cipher.Hash_string, cipher.Salt, cipher.AESiv);
-					single_query(temp_cmd);
+				{ 
+					SQLiteCommand temp_cmd = new SQLiteCommand("INSERT INTO PasswordCihper(open_string, password_hash, salt, aes_iv) VALUES(@open_string, @password_hash, @salt, @aes_iv)");
+					single_query(temp_cmd, Service, Password);
 				}
 				catch (Exception ex)
 				{
@@ -61,14 +51,14 @@ namespace ManagePassword
 				DataTable dataTable = new DataTable();
 				if (AdmMode.isAdm)
 				{
-					temp_cmd = new SQLiteCommand("SELECT id AS \"Number\", open_string AS \"Service\", password_hash, salt, aes_iv FROM PasswordCihper WHERE open_string LIKE @open");
+					SQLiteCommand temp_cmd = new SQLiteCommand("SELECT id AS \"Number\", open_string AS \"Service\", password_hash, salt, aes_iv FROM PasswordCihper WHERE open_string LIKE @open");
 					temp_cmd.Parameters.AddWithValue("@open", Service + "%");
 					dataTable = circle_query(temp_cmd);
 					return dataTable;
 				}
 				else if (!AdmMode.isAdm)
 				{
-					temp_cmd = new SQLiteCommand("SELECT id AS \"Nubmer\", open_string AS \"Service\" FROM PasswordCihper WHERE open_string LIKE @open");
+					SQLiteCommand temp_cmd = new SQLiteCommand("SELECT id AS \"Nubmer\", open_string AS \"Service\" FROM PasswordCihper WHERE open_string LIKE @open");
 					temp_cmd.Parameters.AddWithValue("@open", Service + "%");
 					dataTable = circle_query(temp_cmd);
 					return dataTable;
@@ -80,7 +70,7 @@ namespace ManagePassword
 			}
 			static public void Delete(string delItem)
 			{
-				temp_cmd = new SQLiteCommand("DELETE FROM PasswordCihper WHERE id = @id");
+				SQLiteCommand temp_cmd = new SQLiteCommand("DELETE FROM PasswordCihper WHERE id = @id");
 				temp_cmd.Parameters.AddWithValue("@id", Convert.ToInt32(delItem));
 				single_query(temp_cmd);
 			}
@@ -88,22 +78,16 @@ namespace ManagePassword
 			{
 				if (AdmMode.isAdm)
 				{
-
-					cipher = new Cipher(Password);
-					cipher.GenerateKeys();
-					cipher.Hash_string = cipher.EncryptAES();
-
-					temp_cmd = new SQLiteCommand("UPDATE PasswordCihper SET open_string = @open_string, password_hash = @password_hash, salt = @salt, aes_iv = @aes_iv WHERE id = @id");
-					Dictionary<string, object> parametres = Create_and_set_parameters(temp_cmd, Service, cipher.Hash_string, cipher.Salt, cipher.AESiv);
+					SQLiteCommand temp_cmd = new SQLiteCommand("UPDATE PasswordCihper SET open_string = @open_string, password_hash = @password_hash, salt = @salt, aes_iv = @aes_iv WHERE id = @id");
 					temp_cmd.Parameters.AddWithValue("@id", Convert.ToInt32(id));
 
-					single_query(temp_cmd);
+					single_query(temp_cmd, Service, Password);
 				}
 			}
 			static public DataTable circle_query(SQLiteCommand cmd)
 			{
 				DataTable dataTable = new DataTable();
-				SQLiteConnection conn = new SQLiteConnection(conn_str);
+				SQLiteConnection conn = new SQLiteConnection(CONN_STR);
 				SQLiteDataReader reader = null;
 				try
 				{
@@ -129,11 +113,18 @@ namespace ManagePassword
 				}
 				return dataTable;
 			}
-			static public void single_query(SQLiteCommand cmd)
+			static public void single_query(SQLiteCommand cmd, string Service = "", string Password = "")
 			{
 				try
 				{
-					SQLiteConnection conn = new SQLiteConnection(conn_str);
+					if(Service != "" && Password != "")
+					{
+						Cipher cipher = new Cipher(Password);
+						cipher.GenerateKeys();
+						cipher.Encrypt();
+						Dictionary<string, object> parameters = Create_and_set_parameters(cmd, Service, cipher.Hash_string, cipher.Salt, cipher.AESiv);
+					}
+					SQLiteConnection conn = new SQLiteConnection(CONN_STR);
 					conn.Open();
 
 					cmd.Connection = conn;
@@ -167,29 +158,24 @@ namespace ManagePassword
 			}
 			static public string read_cihper_query(string query, string password)
 			{
-				cipher = new Cipher(password);
-				SQLiteConnection conn_DB = new SQLiteConnection(conn_str);
+				Cipher cipher = new Cipher(password);
+				SQLiteConnection conn_DB = new SQLiteConnection(CONN_STR);
 				SQLiteCommand cmd = new SQLiteCommand(query, conn_DB);
 				conn_DB.Open();
 
 				SQLiteDataReader reader = cmd.ExecuteReader();
 				if (reader.Read())
 				{
-					(cipher.Salt, cipher.Hash_string, cipher.AESiv) = FetchSecurityKeys(reader);
+					cipher.Hash_string = (byte[])reader["password_hash"];
+					cipher.Salt = (byte[])reader["salt"];
+					cipher.AESiv = (byte[])reader["aes_iv"];
 				}
+				cipher.AES_key = cipher.DeriveKey(password, cipher.Salt);
 				reader.Close();
 				cmd.Dispose();
 				conn_DB.Close();
 				conn_DB.Dispose();
-				return cipher.DecryptAES(cipher.Hash_string, cipher.AES_key, cipher.AESiv);
-			}
-
-			public static (byte[], byte[], byte[]) FetchSecurityKeys(SQLiteDataReader reader)
-			{
-				byte[] salt = (byte[])reader["salt"];
-				byte[] pass_hash = (byte[])reader["password_hash"];
-				byte[] iv = (byte[])reader["aes_iv"];
-				return (salt, pass_hash, iv);
+				return cipher.Decrypt(cipher.Hash_string, cipher.AES_key, cipher.AESiv);
 			}
 		}
 	}

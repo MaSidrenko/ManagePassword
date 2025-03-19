@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ManagePassword.Model;
 using Npgsql;
 
 namespace ManagePassword
@@ -46,35 +47,48 @@ namespace ManagePassword
 			table.Columns.Remove("salt");
 			table.Columns.Remove("aes_iv");
 		}
-		//Не помню зачем
 		//TODO
 		//Нарушение паттерна MVP?
 		public DataTable DecryptPasswordDB(DataTable table)
 		{
+			if (!table.Columns.Contains("Password"))
+			{
+				table.Columns.Add("Password", typeof(string));
+			}
+			/*		//'Ходим' циклом по всей таблице 
 			foreach (DataRow row in table.Rows)
 			{
-				Model.Cipher cihper = new Model.Cipher(Model.AdmMode.AdmPassword);
+			Model.Cipher cihper = new Model.Cipher(Model.AdmMode.AdmPassword);
+				//Если в таблице DGV_DB нету колонки "Password"
+				//В авто-свойства Hash_string, Salt и AESiv из
+				//полей "password_hash", "salt" и "aes_iv" 
+				//присвается 'информация о шифровке'
+				//'информацию о шифровке' берем из БД
+				//Пометка: Возможно нарушения MVP, стоит задуматся над тем
+				//что бы вынести часть присваивания 'информации о шифровке' (Возможно в circle_query)
 				cihper.Hash_string = (byte[])row["password_hash"];
-				cihper.Salt  = (byte[])row["salt"];
+				cihper.Salt = (byte[])row["salt"];
 				cihper.AESiv = (byte[])row["aes_iv"];
 
 
-				if (!table.Columns.Contains("Password"))
-				{
-					table.Columns.Add("Password", typeof(string));
-				}
-
 				if (cihper.Hash_string != null && cihper.Salt != null && cihper.AESiv != null)
 				{
+
 					//TODO
-					byte[] key = cihper.DeriveKey(cihper.Input_string, cihper.Salt);
+					//Получаем ключ для дешифровки
+					cihper.AES_key = cihper.DeriveKey(cihper.Input_string, cihper.Salt);
 
-					string decrypted = cihper.DecryptAES(cihper.Hash_string, key, cihper.AESiv);
+					//Дешифруем поля с паролями
+					string decrypted = cihper.Decrypt(cihper.Hash_string, cihper.AES_key, cihper.AESiv);
 
+
+					//В строки колонки "Password" присваеваим дешифрованные значения
 					row["Password"] = decrypted;
 				}
-			}
-			return table;
+				//Тогда мы её добавляем
+
+			}*/
+			return QueriesDB.ReadData(table);
 		}
 		private void dgvDB_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
 		{
@@ -111,8 +125,7 @@ namespace ManagePassword
 
 		private void dgvDB_CellMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e)
 		{
-			//КОСТЫЛЬ ЗДЕСЬ!!!
-			try
+			if (AdmMode.AdmPassword != "")
 			{
 				string id = dgvDB.Rows[e.RowIndex].Cells[0].Value.ToString();
 				string Service = dgvDB.Rows[e.RowIndex].Cells[1].Value.ToString();
@@ -124,12 +137,12 @@ namespace ManagePassword
 					Refresh();
 				}
 			}
-			catch (Exception ex)
+			else
 			{
 				MessageBox.Show("You`a not in admin mode!");
 				adminModeToolStripMenuItem_Click(sender, e);
-
 			}
+
 		}
 
 		private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
@@ -150,7 +163,6 @@ namespace ManagePassword
 		{
 			Refresh();
 		}
-
 		private void adminModeToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			adminMode_dialog = new AdminForm(this);
