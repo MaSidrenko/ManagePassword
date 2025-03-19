@@ -20,7 +20,6 @@ namespace ManagePassword
 			public static string AdmPassword = "";
 
 			public static NpgsqlCommand cmd = null;
-			public static Model.Cipher cipher;
 
 			public static void GetAdmPassword(string AdmPassword_tb)
 			{
@@ -30,9 +29,9 @@ namespace ManagePassword
 			{
 				try
 				{
-					cipher = new Model.Cipher(password);
+					Model.Cipher cipher = new Model.Cipher(password);
 					cipher.GenerateKeys(password);
-					cipher.Hash_string = cipher.EncryptAES();
+					cipher.Encrypt();
 
 					if (Model.QueriesDB.BdMode == "Postgre")
 					{
@@ -78,8 +77,6 @@ namespace ManagePassword
 					{
 						decrypted_pass = Model.SQLite.read_cihper_query($"SELECT password_hash, salt, aes_iv FROM Admins WHERE admin_name = 'Admin'", password);
 					}
-					if (cipher.Salt == null || cipher.Hash_string == null || cipher.AESiv == null)
-						return false;
 					
 					return decrypted_pass == password;
 				}
@@ -93,7 +90,7 @@ namespace ManagePassword
 			{
 				string decrypted_pass = "";
 
-				cipher = new Model.Cipher(password);
+				Model.Cipher cipher = new Model.Cipher(password);
 
 				if (Model.QueriesDB.BdMode == "Postgre")
 				{
