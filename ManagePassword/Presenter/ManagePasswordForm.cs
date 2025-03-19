@@ -29,11 +29,11 @@ namespace ManagePassword
 		}
 		public void Refresh()
 		{
-
 			dgvDB.DataSource = Model.QueriesDB.Refresh();
 			foreach (DataGridViewColumn column in dgvDB.Columns.Cast<DataGridViewColumn>().ToList())
 			{
 				if (column.Name == "password_hash")
+				//Не идеальное решение
 				{
 					dgvDB.DataSource = DecryptPasswordDB((DataTable)dgvDB.DataSource);
 					if (dgvDB.Rows.Count > 0)
@@ -41,14 +41,14 @@ namespace ManagePassword
 				}
 			}
 		}
+		//Странное решение
 		public void RemoveColumns(DataTable table)
 		{
 			table.Columns.Remove("password_hash");
 			table.Columns.Remove("salt");
 			table.Columns.Remove("aes_iv");
 		}
-		//TODO
-		//Нарушение паттерна MVP?
+		//Не идеально написанный метод
 		public DataTable DecryptPasswordDB(DataTable table)
 		{
 			if (!table.Columns.Contains("Password"))
@@ -88,7 +88,7 @@ namespace ManagePassword
 				//Тогда мы её добавляем
 
 			}*/
-			return QueriesDB.ReadData(table);
+			return QueriesDB.Read(table);
 		}
 		private void dgvDB_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
 		{
@@ -101,13 +101,13 @@ namespace ManagePassword
 		private void cmAdd_MouseDown(object sender, MouseEventArgs e)
 		{
 			adminMode_dialog = new AdminForm(this);
-			if (Model.AdmMode.AdmPassword == "")
+			if (Model.AdmMode.SetedAdmPassword)
 			{
 				MessageBox.Show("Type Master Password!", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
 				adminMode_dialog.Show();
 				MessageBox.Show("Click second time on Add!");
 			}
-			else if (Model.AdmMode.AdmPassword != "")
+			else if (Model.AdmMode.SetedAdmPassword)
 			{
 
 				FormAdd formAdd_dialog = new FormAdd();
@@ -125,7 +125,7 @@ namespace ManagePassword
 
 		private void dgvDB_CellMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e)
 		{
-			if (AdmMode.AdmPassword != "")
+			if (AdmMode.SetedAdmPassword)
 			{
 				string id = dgvDB.Rows[e.RowIndex].Cells[0].Value.ToString();
 				string Service = dgvDB.Rows[e.RowIndex].Cells[1].Value.ToString();
@@ -196,6 +196,7 @@ namespace ManagePassword
 				foreach (DataGridViewColumn column in dgvDB.Columns.Cast<DataGridViewColumn>().ToList())
 				{
 					if (column.Name == "password_hash")
+					//Не идеальное решение
 					{
 						dgvDB.DataSource = DecryptPasswordDB((DataTable)dgvDB.DataSource);
 						if (dgvDB.Rows.Count > 0)
@@ -214,8 +215,6 @@ namespace ManagePassword
 				FindBox.Text = "";
 				FindBox.ForeColor = Color.Black;
 			}
-
-
 		}
 
 		private void FindBox_Leave(object sender, EventArgs e)
@@ -238,7 +237,7 @@ namespace ManagePassword
 			stopWatch = stopWatch.AddTicks(DateTime.Now.Ticks - time.Ticks);
 			if (stopWatch.Minute == 10 && stopWatch.Second == 30)
 			{
-				if (Model.AdmMode.AdmPassword != "")
+				if (Model.AdmMode.SetedAdmPassword)
 				{
 					Model.AdmMode.ClearMasterPassword();
 					Refresh();

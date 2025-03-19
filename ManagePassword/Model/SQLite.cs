@@ -15,7 +15,25 @@ namespace ManagePassword
 	{
 		static internal class SQLite
 		{
-			const string CONN_STR = "Data Source = PassData.db; Version = 3";
+			const string CONN_STR = "Data Source = PassData.db;Version = 3";
+			//Используется для защиты от SQL-инъекций
+			static public Dictionary<string, object> Create_and_set_parameters(SQLiteCommand cmd, string open_string, byte[] cipher_password, byte[] salt, byte[] iv)
+			{
+				Dictionary<string, object> param = new Dictionary<string, object>
+				{
+					{ "@open_string", open_string },
+					{ "@password_hash", cipher_password },
+					{ "@salt", salt },
+					{ "@aes_iv", iv }
+				};
+
+				foreach (KeyValuePair<string, object> prm in param)
+				{
+					cmd.Parameters.AddWithValue(prm.Key, prm.Value);
+				}
+				return param;
+			}
+			//Получение всех данных из БД
 			static public DataTable Refresh()
 			{
 				DataTable dataTable = new DataTable();
@@ -37,8 +55,13 @@ namespace ManagePassword
 			static public void Insert(string Service, string Password)
 			{
 				try
-				{ 
+				{
+					Cipher cipher = new Cipher(Password);
+					cipher.GenerateKeys();
+					cipher.Encrypt();
+
 					SQLiteCommand temp_cmd = new SQLiteCommand("INSERT INTO PasswordCihper(open_string, password_hash, salt, aes_iv) VALUES(@open_string, @password_hash, @salt, @aes_iv)");
+					Dictionary<string, object> parameters = Create_and_set_parameters(temp_cmd, Service, cipher.Hash_string, cipher.Salt, cipher.AESiv);
 					single_query(temp_cmd, Service, Password);
 				}
 				catch (Exception ex)
@@ -78,7 +101,12 @@ namespace ManagePassword
 			{
 				if (AdmMode.isAdm)
 				{
+					Cipher cipher = new Cipher(Password);
+					cipher.GenerateKeys();
+					cipher.Encrypt();
+
 					SQLiteCommand temp_cmd = new SQLiteCommand("UPDATE PasswordCihper SET open_string = @open_string, password_hash = @password_hash, salt = @salt, aes_iv = @aes_iv WHERE id = @id");
+					Dictionary<string, object> parameters = Create_and_set_parameters(temp_cmd, Service, cipher.Hash_string, cipher.Salt, cipher.AESiv);
 					temp_cmd.Parameters.AddWithValue("@id", Convert.ToInt32(id));
 
 					single_query(temp_cmd, Service, Password);
@@ -117,13 +145,6 @@ namespace ManagePassword
 			{
 				try
 				{
-					if(Service != "" && Password != "")
-					{
-						Cipher cipher = new Cipher(Password);
-						cipher.GenerateKeys();
-						cipher.Encrypt();
-						Dictionary<string, object> parameters = Create_and_set_parameters(cmd, Service, cipher.Hash_string, cipher.Salt, cipher.AESiv);
-					}
 					SQLiteConnection conn = new SQLiteConnection(CONN_STR);
 					conn.Open();
 
@@ -140,23 +161,7 @@ namespace ManagePassword
 					MessageBox.Show(ex.Message);
 				}
 			}
-			static public Dictionary<string, object> Create_and_set_parameters(SQLiteCommand cmd, string open_string, byte[] cipher_password, byte[] salt, byte[] iv)
-			{
-				Dictionary<string, object> param = new Dictionary<string, object>
-				{
-					{ "@open_string", open_string },
-					{ "@password_hash", cipher_password },
-					{ "@salt", salt },
-					{ "@aes_iv", iv }
-				};
-
-				foreach (KeyValuePair<string, object> prm in param)
-				{
-					cmd.Parameters.AddWithValue(prm.Key, prm.Value);
-				}
-				return param;
-			}
-			static public string read_cihper_query(string query, string password)
+			static public string read_adm_password(string query, string password)
 			{
 				Cipher cipher = new Cipher(password);
 				SQLiteConnection conn_DB = new SQLiteConnection(CONN_STR);
@@ -176,6 +181,42 @@ namespace ManagePassword
 				conn_DB.Close();
 				conn_DB.Dispose();
 				return cipher.Decrypt(cipher.Hash_string, cipher.AES_key, cipher.AESiv);
+			}
+			static public void create_adm_password(Cipher cipher, string admin)
+			{
+				SQLiteCommand if_cmd = new SQLiteCommand("CREATE TABLE IF NOT EXISTS Admins(id INTEGER PRIMARY KEY CHECK(id = 1), admin_name TEXT, password_hash BLOB NOT NULL, salt BLOB, aes_iv BLOB NOT NULL)");
+				Model.SQLite.single_query(if_cmd);
+
+				SQLiteCommand cmd = new SQLiteCommand($"INSERT INTO Admins(id, admin_name, password_hash, salt, aes_iv) VALUES(@id, @username, @password_hash, @salt, @aes_iv)");
+				cmd.Parameters.AddWithValue("@id", 1);
+				cmd.Parameters.AddWithValue("@username", admin);
+				cmd.Parameters.AddWithValue("@salt", cipher.Salt);
+				cmd.Parameters.AddWithValue("@password_hash", cipher.Hash_string);
+				cmd.Parameters.AddWithValue("@aes_iv", cipher.AESiv);
+
+				Model.SQLite.single_query(cmd);
+			}
+			//Старнно написанный метод
+			//Используется для получения только для получения дешифрованного солбца пароля
+			static public DataTable read_passwords(DataTable table)
+			{
+				string decrypted = "";
+				Model.Cipher cihper = new Model.Cipher(AdmMode.UnsaveGetAdmPassword());
+				foreach (DataRow row in table.Rows)
+				{
+					cihper.Hash_string = (byte[])row["password_hash"];
+					cihper.Salt = (byte[])row["salt"];
+					cihper.AESiv = (byte[])row["aes_iv"];
+
+
+					if (cihper.Hash_string != null && cihper.Salt != null && cihper.AESiv != null)
+					{
+						cihper.AES_key = cihper.DeriveKey(cihper.Input_string, cihper.Salt);
+						decrypted = cihper.Decrypt(cihper.Hash_string, cihper.AES_key, cihper.AESiv);
+						row["password"] = decrypted;
+					}
+				}
+				return table;
 			}
 		}
 	}

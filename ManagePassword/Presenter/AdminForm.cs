@@ -27,8 +27,6 @@ namespace ManagePassword
         {
             if (Model.AdmMode.AuthenticateAdm(tbAdmin.Text))
             {
-                Model.AdmMode.isAdm = true;
-                Model.AdmMode.GetAdmPassword(tbAdmin.Text);
                 mp_dialog.Refresh();
                 tbAdmin.Clear();
                 this.Close();
@@ -48,8 +46,7 @@ namespace ManagePassword
         {
             if (Model.AdmMode.isAdm)
             {
-                Model.AdmMode.AdmPassword = "";
-                Model.AdmMode.isAdm = false;
+                Model.AdmMode.ClearMasterPassword();
                 mp_dialog.Refresh();
             }
             this.Close();

@@ -9,6 +9,7 @@ namespace ManagePassword
 {
 	namespace Model
 	{
+		
 		internal class Cipher
 		{
 			public byte[] Salt { get; set; }
@@ -36,7 +37,7 @@ namespace ManagePassword
 				//AESIV - random;
 				AESiv = GenerateIV();
 				//AESkey - not random. Based on Master-Password;
-				AES_key = DeriveKey(password != "" ? password : AdmMode.AdmPassword, Salt);
+				AES_key = DeriveKey(password != "" ? password : AdmMode.UnsaveGetAdmPassword(), Salt);
 				return (Salt, AESiv, AES_key);
 			}
 			public byte[] DeriveKey(string password, byte[] salt, int keySize = 32, int iterations = 10000)

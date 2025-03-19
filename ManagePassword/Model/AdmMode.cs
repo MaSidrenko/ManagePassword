@@ -16,14 +16,15 @@ namespace ManagePassword
 	{
 		static internal class AdmMode
 		{
-			public static bool isAdm = false;
-			public static string AdmPassword = "";
+			private static string AdmPassword = "";
+			public static bool isAdm { get; private set; }
+			public static bool SetedAdmPassword { get; private set; }
 
 			public static NpgsqlCommand cmd = null;
 
-			public static void GetAdmPassword(string AdmPassword_tb)
+			public static string UnsaveGetAdmPassword()
 			{
-				AdmPassword = AdmPassword_tb;
+				return AdmPassword;
 			}
 			public static void RegistrAdm(string password, string admin = "Admin")
 			{
@@ -35,18 +36,18 @@ namespace ManagePassword
 
 					if (Model.QueriesDB.BdMode == "Postgre")
 					{
-						NpgsqlCommand cmd = new NpgsqlCommand($"INSERT INTO Admins(admin_name, password_hash, salt, aes_iv) VALUES(@username, @password_hash, @salt, @aes_iv)");
+						/*NpgsqlCommand cmd = new NpgsqlCommand($"INSERT INTO Admins(admin_name, password_hash, salt, aes_iv) VALUES(@username, @password_hash, @salt, @aes_iv)");
 
 						cmd.Parameters.AddWithValue("@username", admin);
 						cmd.Parameters.AddWithValue("@salt", cipher.Salt);
 						cmd.Parameters.AddWithValue("@password_hash", cipher.Hash_string);
 						cmd.Parameters.AddWithValue("@aes_iv", cipher.AESiv);
-						Model.PostgreSQL.single_query(cmd);
+						Model.PostgreSQL.single_query(cmd);*/
+						Model.PostgreSQL.create_adm_password(cipher, admin);
 					}
 					else if (Model.QueriesDB.BdMode == "SQLite")
 					{
-
-						SQLiteCommand if_cmd = new SQLiteCommand("CREATE TABLE IF NOT EXISTS Admins(id INTEGER PRIMARY KEY CHECK(id = 1), admin_name TEXT, password_hash BLOB NOT NULL, salt BLOB, aes_iv BLOB NOT NULL)");
+						/*SQLiteCommand if_cmd = new SQLiteCommand("CREATE TABLE IF NOT EXISTS Admins(id INTEGER PRIMARY KEY CHECK(id = 1), admin_name TEXT, password_hash BLOB NOT NULL, salt BLOB, aes_iv BLOB NOT NULL)");
 						Model.SQLite.single_query(if_cmd);
 
 						SQLiteCommand cmd = new SQLiteCommand($"INSERT INTO Admins(id, admin_name, password_hash, salt, aes_iv) VALUES(@id, @username, @password_hash, @salt, @aes_iv)");
@@ -56,7 +57,8 @@ namespace ManagePassword
 						cmd.Parameters.AddWithValue("@password_hash", cipher.Hash_string);
 						cmd.Parameters.AddWithValue("@aes_iv", cipher.AESiv);
 
-						Model.SQLite.single_query(cmd);
+						Model.SQLite.single_query(cmd);*/
+						Model.SQLite.create_adm_password(cipher, admin);
 					}
 				}
 				catch (Exception e)
@@ -71,13 +73,18 @@ namespace ManagePassword
 					string decrypted_pass = "";
 					if (Model.QueriesDB.BdMode == "Postgre")
 					{
-						decrypted_pass = Model.PostgreSQL.read_cihper_query($"SELECT password_hash, salt, aes_iv FROM Admins WHERE admin_name = 'Admin'", password);
+						decrypted_pass = Model.PostgreSQL.read_adm_password($"SELECT password_hash, salt, aes_iv FROM Admins WHERE admin_name = 'Admin'", password);
 					}
 					else if (Model.QueriesDB.BdMode == "SQLite")
 					{
-						decrypted_pass = Model.SQLite.read_cihper_query($"SELECT password_hash, salt, aes_iv FROM Admins WHERE admin_name = 'Admin'", password);
+						decrypted_pass = Model.SQLite.read_adm_password($"SELECT password_hash, salt, aes_iv FROM Admins WHERE admin_name = 'Admin'", password);
 					}
-					
+					if(decrypted_pass == password)
+					{
+						isAdm = true;
+						SetedAdmPassword = true;
+					}
+
 					return decrypted_pass == password;
 				}
 				catch (Exception e)
@@ -94,11 +101,11 @@ namespace ManagePassword
 
 				if (Model.QueriesDB.BdMode == "Postgre")
 				{
-					decrypted_pass = Model.PostgreSQL.read_cihper_query($"SELECT password_hash, salt, aes_iv FROM Admins WHERE admin_name = 'Admin'", password);
+					decrypted_pass = Model.PostgreSQL.read_adm_password($"SELECT password_hash, salt, aes_iv FROM Admins WHERE admin_name = 'Admin'", password);
 				}
 				else if (Model.QueriesDB.BdMode == "SQLite")
 				{
-					decrypted_pass = Model.SQLite.read_cihper_query($"SELECT password_hash, salt, aes_iv FROM Admins WHERE admin_name = 'Admin'", password);
+					decrypted_pass = Model.SQLite.read_adm_password($"SELECT password_hash, salt, aes_iv FROM Admins WHERE admin_name = 'Admin'", password);
 				}
 				if (cipher.Salt == null || cipher.Hash_string == null || cipher.AESiv == null)
 					MessageBox.Show("User not found!");
@@ -123,13 +130,12 @@ namespace ManagePassword
 						Model.SQLite.single_query(cmd);
 						cmd.Dispose();
 					}
-					AdmPassword = "";
-					isAdm = false;
+					ClearMasterPassword();
 				}
 			}
 			public static void ClearMasterPassword()
 			{
-				AdmPassword = "";
+				SetedAdmPassword = false;
 				isAdm = false;
 			}
 		}
