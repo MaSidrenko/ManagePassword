@@ -23,13 +23,11 @@ namespace ManagePassword
             string password = tbCreatePassword.Text;
             Model.AdmMode.RegistrAdm(password);
             this.Close();
-            this.Dispose();
         }
 
         private void btnCancle_Click(object sender, EventArgs e)
         {
             this.Close();
-			this.Dispose();
 		}
     }
 }

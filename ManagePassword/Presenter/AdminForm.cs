@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ManagePassword.Model;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -28,6 +29,7 @@ namespace ManagePassword
             if (Model.AdmMode.AuthenticateAdm(tbAdmin.Text))
             {
                 mp_dialog.Refresh();
+                //AdminForm.AdmPassword = tbAdmin.Text;
                 tbAdmin.Clear();
                 this.Close();
             }

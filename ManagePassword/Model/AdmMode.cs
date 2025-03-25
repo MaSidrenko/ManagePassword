@@ -70,6 +70,7 @@ namespace ManagePassword
 			{
 				try
 				{
+					AdmPassword = password;
 					string decrypted_pass = "";
 					if (Model.QueriesDB.BdMode == "Postgre")
 					{

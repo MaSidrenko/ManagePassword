@@ -101,7 +101,7 @@ namespace ManagePassword
 		private void cmAdd_MouseDown(object sender, MouseEventArgs e)
 		{
 			adminMode_dialog = new AdminForm(this);
-			if (Model.AdmMode.SetedAdmPassword)
+			if (!Model.AdmMode.SetedAdmPassword)
 			{
 				MessageBox.Show("Type Master Password!", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
 				adminMode_dialog.Show();

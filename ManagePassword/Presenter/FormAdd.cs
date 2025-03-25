@@ -19,13 +19,17 @@ namespace ManagePassword
 
         private void btnOk_Click(object sender, EventArgs e)
         {
-            if (tbServiceAdd.Text != "" && tbPasswordAdd.Text != "")
-            {
-                Model.QueriesDB.Insert(tbServiceAdd.Text, tbPasswordAdd.Text);
-            }
-            else if (tbServiceAdd.Text == "" && tbPasswordAdd.Text == "")
+            if (tbServiceAdd.Text == "" || tbPasswordAdd.Text == "")
             {
                 MessageBox.Show("text boxes Service and/or Password never equal null!", "Waring", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            else if (string.IsNullOrWhiteSpace(tbServiceAdd.Text) || string.IsNullOrWhiteSpace(tbPasswordAdd.Text))
+            {
+                MessageBox.Show("text boxes Service and/or Password never equal null!", "Waring", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            else
+            {
+                Model.QueriesDB.Insert(tbServiceAdd.Text, tbPasswordAdd.Text);
             }
         }
 

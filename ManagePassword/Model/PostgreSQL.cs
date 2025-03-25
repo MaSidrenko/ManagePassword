@@ -183,7 +183,7 @@ namespace ManagePassword
 
 			}
 			//Старнно написанный метод
-			//Используется для получения только для получения дешифрованного солбца пароля
+			//Используется для получения только для получения дешифрованного столбца пароля
 			static public DataTable read_passwords(DataTable table)
 			{
 				string decrypted = "";
