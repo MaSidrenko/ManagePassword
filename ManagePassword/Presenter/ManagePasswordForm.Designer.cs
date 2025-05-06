@@ -33,12 +33,10 @@
 			this.dgvDB = new System.Windows.Forms.DataGridView();
 			this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.cmAdd = new System.Windows.Forms.ToolStripMenuItem();
-			this.changeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.refreshToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
 			this.adminModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.infoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
 			this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.FindBox = new System.Windows.Forms.TextBox();
@@ -64,21 +62,20 @@
 			this.dgvDB.TabIndex = 0;
 			this.dgvDB.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dgvDB_CellMouseClick);
 			this.dgvDB.CellMouseDoubleClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dgvDB_CellMouseDoubleClick);
+			this.dgvDB.ColumnHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dgvDB_ColumnHeaderMouseClick);
 			// 
 			// contextMenuStrip1
 			// 
 			this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.cmAdd,
-            this.changeToolStripMenuItem,
             this.deleteToolStripMenuItem,
             this.refreshToolStripMenuItem,
             this.toolStripSeparator1,
             this.adminModeToolStripMenuItem,
-            this.infoToolStripMenuItem,
             this.toolStripSeparator2,
             this.exitToolStripMenuItem});
 			this.contextMenuStrip1.Name = "contextMenuStrip1";
-			this.contextMenuStrip1.Size = new System.Drawing.Size(145, 170);
+			this.contextMenuStrip1.Size = new System.Drawing.Size(145, 126);
 			// 
 			// cmAdd
 			// 
@@ -86,13 +83,6 @@
 			this.cmAdd.Size = new System.Drawing.Size(144, 22);
 			this.cmAdd.Text = "Add";
 			this.cmAdd.MouseDown += new System.Windows.Forms.MouseEventHandler(this.cmAdd_MouseDown);
-			// 
-			// changeToolStripMenuItem
-			// 
-			this.changeToolStripMenuItem.Name = "changeToolStripMenuItem";
-			this.changeToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
-			this.changeToolStripMenuItem.Text = "Change";
-			this.changeToolStripMenuItem.Click += new System.EventHandler(this.changeToolStripMenuItem_Click);
 			// 
 			// deleteToolStripMenuItem
 			// 
@@ -119,13 +109,6 @@
 			this.adminModeToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
 			this.adminModeToolStripMenuItem.Text = "Admin mode";
 			this.adminModeToolStripMenuItem.Click += new System.EventHandler(this.adminModeToolStripMenuItem_Click);
-			// 
-			// infoToolStripMenuItem
-			// 
-			this.infoToolStripMenuItem.Name = "infoToolStripMenuItem";
-			this.infoToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
-			this.infoToolStripMenuItem.Text = "Info";
-			this.infoToolStripMenuItem.Click += new System.EventHandler(this.infoToolStripMenuItem_Click);
 			// 
 			// toolStripSeparator2
 			// 
@@ -188,12 +171,10 @@
         private System.Windows.Forms.DataGridView dgvDB;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.ToolStripMenuItem cmAdd;
-        private System.Windows.Forms.ToolStripMenuItem changeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem refreshToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem adminModeToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem infoToolStripMenuItem;
         private System.Windows.Forms.TextBox FindBox;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;

@@ -15,10 +15,10 @@ namespace ManagePassword
 {
 	public partial class ManagePasswordForm : Form
 	{
-		FormInfo formInfo_dialog = null;
 		AdminForm adminMode_dialog = null;
 		DateTime time;
-
+		Dictionary<int, string> data;
+		BindingList<Entry> entries = new BindingList<Entry>();
 		public ManagePasswordForm()
 		{
 			InitializeComponent();
@@ -26,12 +26,43 @@ namespace ManagePassword
 			this.CenterToScreen();
 			Refresh();
 			time = DateTime.Now;
+			data = new Dictionary<int, string>();
+			//dgvDB.DataSource = entries;
+		}
+		public void ShowPassword()
+		{
+			for (int i = 0; i < dgvDB.Rows.Count - 1; i++)
+			{
+				if (dgvDB.Rows[i].IsNewRow) continue;
+				dgvDB.Rows[i].Cells[2].Value = entries[i].Password;
+			}
+		}
+		public void SavePassword()
+		{
+			if (Model.AdmMode.SetedAdmPassword)
+			{
+				//ShowPassword();
+				for (int i = 0; i < dgvDB.Rows.Count - 1; i++)
+				{
+					if (dgvDB.Rows[i].IsNewRow) continue;
+					string service = dgvDB.Rows[i].Cells[1].Value.ToString();
+					string password = dgvDB.Rows[i].Cells[2].Value.ToString();
+					entries[i].Service = service;
+					entries[i].Password = password;
+
+					//entries[i] = dgvDB.Rows[i].Cells[2].Value.ToString();
+				}
+				HidePassword();
+			}
 		}
 		public void Refresh()
 		{
+
 			dgvDB.DataSource = Model.QueriesDB.Refresh();
 			foreach (DataGridViewColumn column in dgvDB.Columns.Cast<DataGridViewColumn>().ToList())
 			{
+				if (column.Name == "Number")
+					column.Visible = false;
 				if (column.Name == "password_hash")
 				//Не идеальное решение
 				{
@@ -40,6 +71,7 @@ namespace ManagePassword
 						RemoveColumns((DataTable)dgvDB.DataSource);
 				}
 			}
+
 		}
 		//Странное решение
 		public void RemoveColumns(DataTable table)
@@ -114,6 +146,8 @@ namespace ManagePassword
 				if (formAdd_dialog.ShowDialog() == DialogResult.OK)
 				{
 					Refresh();
+					//HidePassword();
+					SavePassword();
 				}
 			}
 		}
@@ -129,12 +163,16 @@ namespace ManagePassword
 			{
 				string id = dgvDB.Rows[e.RowIndex].Cells[0].Value.ToString();
 				string Service = dgvDB.Rows[e.RowIndex].Cells[1].Value.ToString();
-				string Password = dgvDB.Rows[e.RowIndex].Cells[2].Value.ToString();
+				//string Password = dgvDB.Rows[e.RowIndex].Cells[2].Value.ToString();
+				//string Password = entries.Where(x => x.Key == e.RowIndex).Select(x => x.Value).FirstOrDefault();
+				string Password = entries[e.RowIndex].Password;
 				FormChange formChange_dialog = new FormChange();
 				formChange_dialog.Select(Service, Password, id);
 				if (formChange_dialog.ShowDialog() == DialogResult.OK)
 				{
+					//HidePassword();
 					Refresh();
+					SavePassword();
 				}
 			}
 			else
@@ -152,6 +190,8 @@ namespace ManagePassword
 				Model.QueriesDB.Del(dgvDB.Rows[dgvDB.CurrentCellAddress.Y].Cells[0].Value.ToString());
 				MessageBox.Show("Data has been deleted!");
 				Refresh();
+				//HidePassword();
+				SavePassword();
 			}
 			else
 			{
@@ -162,6 +202,7 @@ namespace ManagePassword
 		private void refreshToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			Refresh();
+			HidePassword();
 		}
 		private void adminModeToolStripMenuItem_Click(object sender, EventArgs e)
 		{
@@ -172,20 +213,10 @@ namespace ManagePassword
 					this.Location.X,
 					this.Location.Y
 				);
+
 			adminMode_dialog.Show();
 			Refresh();
-		}
 
-		private void infoToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			formInfo_dialog = new FormInfo();
-			formInfo_dialog.StartPosition = FormStartPosition.Manual;
-			formInfo_dialog.Location = new Point
-				(
-				this.Location.X,
-				this.Location.Y
-				);
-			formInfo_dialog.Show();
 		}
 
 		private void FindBox_TextChanged(object sender, EventArgs e)
@@ -201,11 +232,15 @@ namespace ManagePassword
 						dgvDB.DataSource = DecryptPasswordDB((DataTable)dgvDB.DataSource);
 						if (dgvDB.Rows.Count > 0)
 							RemoveColumns((DataTable)dgvDB.DataSource);
+						HidePassword();
 					}
 				}
 			}
 			if (FindBox.TextLength == 0 && FindBox.Text != "Search")
+			{
 				Refresh();
+				HidePassword();
+			}
 		}
 
 		private void FindBox_Enter(object sender, EventArgs e)
@@ -243,7 +278,23 @@ namespace ManagePassword
 					Refresh();
 				}
 			}
+		}
+		public void HidePassword()
+		{
+			if (Model.AdmMode.SetedAdmPassword)
+			{
+				for (int i = 0; i < dgvDB.Rows.Count - 1; i++)
+				{
+					dgvDB.Rows[i].Cells[2].Value = "******";
+				}
+			}
+		}
 
+		private void dgvDB_ColumnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+		{
+			ShowPassword();
+			SavePassword();
+			//Refresh();	
 		}
 	}
 }

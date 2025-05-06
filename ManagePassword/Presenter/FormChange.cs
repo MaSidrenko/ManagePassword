@@ -41,13 +41,31 @@ namespace ManagePassword
             {
                 tbChangePassword.Text = password;
             }
-            Model.QueriesDB.Change(tbChangeService.Text, tbChangePassword.Text, id);
             lblID.Text = "Selected id: ";
+            Model.QueriesDB.Change(tbChangeService.Text, tbChangePassword.Text, id);
+            //MP_dialog.SavePassword();
         }
 
         private void btnCancle_Click(object sender, EventArgs e)
         {
             this.Close();
         }
-    }
+
+		private void showPass_CheckedChanged(object sender, EventArgs e)
+		{
+            if(showPass.Checked)
+            {
+                tbChangePassword.PasswordChar = '\0';
+            }
+            else if(!showPass.Checked)
+            {
+                tbChangePassword.PasswordChar = '*';
+            }
+		}
+
+		private void showPass_Click(object sender, EventArgs e)
+		{
+           showPass.Checked = showPass.Checked == true ? false : true;
+		}
+	}
 }

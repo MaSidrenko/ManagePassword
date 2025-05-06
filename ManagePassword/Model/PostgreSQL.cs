@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Npgsql;
@@ -16,6 +17,27 @@ namespace ManagePassword
 		{
 			const string CONN_STR = "Host=localhost;Username=postgres;Password=291305;Database=postgres";
 			//Используется для защиты от SQL-инъекций
+			private static IDataBaseService _manage_db;
+			
+			static public DataTable Refresh()
+			{
+				//DataTable dataTable = new DataTable();
+				NpgsqlCommand temp_cmd = new NpgsqlCommand("CREATE TABLE IF NOT EXISTS passwordcihper (id SERIAL PRIMARY KEY, open_string TEXT, password_hash BYTEA NOT NULL, salt BYTEA NOT NULL,aes_iv BYTEA NOT NULL);");
+				single_query(temp_cmd);
+				if (AdmMode.isAdm)
+				{
+					temp_cmd = new NpgsqlCommand("SELECT id AS \"Number\", open_string AS \"Service\", password_hash, salt, aes_iv FROM PasswordCihper");
+					//dataTable = circle_query(temp_cmd);
+					//return dataTable;
+				}
+				else
+				{
+					temp_cmd = new NpgsqlCommand("SELECT id AS \"Number\", open_string AS \"Service\" FROM PasswordCihper");
+					//return circle_query(temp_cmd);
+				}
+
+				return circle_query(temp_cmd);
+			}
 			static public Dictionary<string, object> Create_and_set_parameters(NpgsqlCommand cmd, string open_string, byte[] cipher_password, byte[] salt, byte[] iv)
 			{
 				Dictionary<string, object> param = new Dictionary<string, object>
@@ -33,23 +55,6 @@ namespace ManagePassword
 				return param;
 			}
 			//Получение всех данных из БД
-			static public DataTable Refresh()
-			{
-				DataTable dataTable = new DataTable();
-				NpgsqlCommand temp_cmd = new NpgsqlCommand("CREATE TABLE IF NOT EXISTS passwordcihper (id SERIAL PRIMARY KEY, open_string TEXT, password_hash BYTEA NOT NULL, salt BYTEA NOT NULL,aes_iv BYTEA NOT NULL);");
-				single_query(temp_cmd);
-				if (AdmMode.isAdm)
-				{
-					temp_cmd = new NpgsqlCommand("SELECT id AS \"Number\", open_string AS \"Service\", password_hash, salt, aes_iv FROM PasswordCihper");
-					dataTable = circle_query(temp_cmd);
-					return dataTable;
-				}
-				else
-				{
-					temp_cmd = new NpgsqlCommand("SELECT id AS \"Number\", open_string AS \"Service\" FROM PasswordCihper");
-					return circle_query(temp_cmd);
-				}
-			}
 			static public void Insert(string Service, string Password)
 			{
 				NpgsqlCommand temp_cmd = new NpgsqlCommand("INSERT INTO PasswordCihper (open_string, password_hash, salt, aes_iv) VALUES(@open_string, @password_hash, @salt, @aes_iv)");
@@ -181,6 +186,29 @@ namespace ManagePassword
 				conn_DB.Dispose();
 				return cipher.Decrypt(cipher.Hash_string, cipher.AES_key, cipher.AESiv);
 
+			}
+			static public int HaveAdmPass()
+			{
+				int count = 0;
+				string query = "SELECT COUNT(id) FROM Admins";
+				NpgsqlConnection conn = new NpgsqlConnection(CONN_STR);
+				NpgsqlCommand cmd = new NpgsqlCommand(query, conn);
+				try
+				{
+					conn.Open();
+					count = Convert.ToInt32(cmd.ExecuteScalar());
+
+				}
+				catch (Exception ex)
+				{
+					Console.WriteLine(ex.Message);
+				}
+				finally
+				{
+					cmd.Dispose();
+					conn.Close();
+				}
+				return count;
 			}
 			//Старнно написанный метод
 			//Используется для получения только для получения дешифрованного столбца пароля

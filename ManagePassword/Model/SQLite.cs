@@ -196,6 +196,28 @@ namespace ManagePassword
 
 				Model.SQLite.single_query(cmd);
 			}
+			static public int HaveAdmPass()
+			{
+				int count = 0;
+				string query = "SELECT COUNT(id) FROM Admins";
+				SQLiteConnection conn = new SQLiteConnection(CONN_STR);
+				SQLiteCommand cmd = new SQLiteCommand(query, conn);
+				try
+				{
+					conn.Open();
+					count = Convert.ToInt32(cmd.ExecuteScalar());
+				}
+				catch (Exception ex)
+				{
+					Console.WriteLine(ex.Message);
+				}
+				finally
+				{
+					cmd.Dispose();
+					conn.Close();
+				}
+				return count;
+			}
 			//Старнно написанный метод
 			//Используется для получения только для получения дешифрованного солбца пароля
 			static public DataTable read_passwords(DataTable table)

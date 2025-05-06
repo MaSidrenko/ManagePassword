@@ -20,7 +20,7 @@ namespace ManagePassword
 			public static bool isAdm { get; private set; }
 			public static bool SetedAdmPassword { get; private set; }
 
-			public static NpgsqlCommand cmd = null;
+			//public static NpgsqlCommand cmd = null;
 
 			public static string UnsaveGetAdmPassword()
 			{
@@ -80,7 +80,7 @@ namespace ManagePassword
 					{
 						decrypted_pass = Model.SQLite.read_adm_password($"SELECT password_hash, salt, aes_iv FROM Admins WHERE admin_name = 'Admin'", password);
 					}
-					if(decrypted_pass == password)
+					if (decrypted_pass == password)
 					{
 						isAdm = true;
 						SetedAdmPassword = true;
@@ -96,29 +96,12 @@ namespace ManagePassword
 			}
 			public static void DeleteAdm(string password)
 			{
-				string decrypted_pass = "";
-
-				Model.Cipher cipher = new Model.Cipher(password);
-
-				if (Model.QueriesDB.BdMode == "Postgre")
+				if (isAdm)
 				{
-					decrypted_pass = Model.PostgreSQL.read_adm_password($"SELECT password_hash, salt, aes_iv FROM Admins WHERE admin_name = 'Admin'", password);
-				}
-				else if (Model.QueriesDB.BdMode == "SQLite")
-				{
-					decrypted_pass = Model.SQLite.read_adm_password($"SELECT password_hash, salt, aes_iv FROM Admins WHERE admin_name = 'Admin'", password);
-				}
-				if (cipher.Salt == null || cipher.Hash_string == null || cipher.AESiv == null)
-					MessageBox.Show("User not found!");
-
-
-				if (decrypted_pass == password)
-				{
-					string delteQuery = "DELETE FROM Admins WHERE admin_name = 'Admin' AND password_hash = @password_hash";
+					string delteQuery = "DELETE FROM Admins WHERE admin_name = 'Admin'";
 					if (Model.QueriesDB.BdMode == "Postgre")
 					{
 						NpgsqlCommand cmd = new NpgsqlCommand(delteQuery);
-						cmd.Parameters.AddWithValue("@password_hash", NpgsqlDbType.Bytea, cipher.Hash_string);
 
 						Model.PostgreSQL.single_query(cmd);
 						cmd.Dispose();
@@ -126,7 +109,6 @@ namespace ManagePassword
 					else if (Model.QueriesDB.BdMode == "SQLite")
 					{
 						SQLiteCommand cmd = new SQLiteCommand(delteQuery);
-						cmd.Parameters.AddWithValue("@password_hash", cipher.Hash_string);
 
 						Model.SQLite.single_query(cmd);
 						cmd.Dispose();
@@ -138,6 +120,20 @@ namespace ManagePassword
 			{
 				SetedAdmPassword = false;
 				isAdm = false;
+			}
+
+			public static bool HaveAdm()
+			{
+				int count = 0;
+				if (Model.QueriesDB.BdMode == "Postgre")
+				{
+					count = Model.PostgreSQL.HaveAdmPass();
+				}
+				if (Model.QueriesDB.BdMode == "SQLite")
+				{
+					count = Model.SQLite.HaveAdmPass();
+				}
+				return count == 1 ? true : false;
 			}
 		}
 	}

@@ -18,7 +18,7 @@ namespace ManagePassword
 	{
 		static internal class QueriesDB
 		{
-			public static string BdMode = "SQLite";
+			public static string BdMode = "Postgre";
 			static public void Insert(string tb_insert_open, string tb_insert_secret)
 			{
 				if (BdMode == "Postgre")
@@ -83,7 +83,6 @@ namespace ManagePassword
 					Model.SQLite.Change(tb_change_id, tb_change_open, tb_change_secret);
 				}
 			}
-			//Не идеально написанный метод
 			static public DataTable Read(DataTable table)
 			{
 				if(BdMode == "Postgre")

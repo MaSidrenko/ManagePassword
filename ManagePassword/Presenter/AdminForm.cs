@@ -12,63 +12,64 @@ using System.Windows.Forms;
 
 namespace ManagePassword
 {
-    public partial class AdminForm : Form
-    {
-        ManagePasswordForm mp_dialog;
-        CreatePasswordForm CPF_dialog;
-        AdmDelete admDelete_dialog;
-        public AdminForm(ManagePasswordForm parent)
-        {
-            InitializeComponent();
-            mp_dialog = parent;
-            CPF_dialog = new CreatePasswordForm();
-        }
+	public partial class AdminForm : Form
+	{
+		ManagePasswordForm mp_dialog;
+		public AdminForm(ManagePasswordForm parent)
+		{
+			InitializeComponent();
+			mp_dialog = parent;
+		}
 
-        private void btnEnterToAdminMode_Click(object sender, EventArgs e)
-        {
-            if (Model.AdmMode.AuthenticateAdm(tbAdmin.Text))
-            {
-                mp_dialog.Refresh();
-                //AdminForm.AdmPassword = tbAdmin.Text;
-                tbAdmin.Clear();
-                this.Close();
-            }
-            else if(tbAdmin.Text == "")
-            {
-                MessageBox.Show("text box Admin Password has been not euqal null!");
-            }
-            else
-            {
-                MessageBox.Show("You don`t have a password!");
-                CPF_dialog.Show();
-            }            
-        }
+		private void btnEnterToAdminMode_Click(object sender, EventArgs e)
+		{
+			if(tbAdmin.Text != "" && !Model.AdmMode.HaveAdm())
+			{
+				MessageBox.Show("You don`t have a password!");
+			}
+			else if (Model.AdmMode.AuthenticateAdm(tbAdmin.Text))
+			{
+				mp_dialog.Refresh();
+				mp_dialog.SavePassword();
+				//mp_dialog.HidePassword();
+				tbAdmin.Clear();
+				this.Close();
+			}
+			else if (tbAdmin.Text == "")
+			{
+				MessageBox.Show("text box Admin Password has been not euqal null!");
+			}
+		}
+		private void btnExit_Click(object sender, EventArgs e)
+		{
+			if (Model.AdmMode.isAdm)
+			{
+				Model.AdmMode.ClearMasterPassword();
+				mp_dialog.Refresh();
+				this.Close();
+			}
+		}
 
-        private void btnExit_Click(object sender, EventArgs e)
-        {
-            if (Model.AdmMode.isAdm)
-            {
-                Model.AdmMode.ClearMasterPassword();
-                mp_dialog.Refresh();
-            }
-            this.Close();
-           
-        }
+		private void btnClose_Click(object sender, EventArgs e)
+		{
+			this.Close();
+		}
 
-        private void btnClose_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
+		private void btnReg_Click(object sender, EventArgs e)
+		{
+			if (tbAdmin.Text != "")
+			{
+				Model.AdmMode.RegistrAdm(tbAdmin.Text);
+			}
+		}
 
-        private void btnReg_Click(object sender, EventArgs e)
-        {
-            CPF_dialog.Show();
-        }
-
-        private void btnDel_Click(object sender, EventArgs e)
-        {
-            admDelete_dialog = new AdmDelete();
-            admDelete_dialog.Show();
-        }
-    }
+		private void btnDel_Click(object sender, EventArgs e)
+		{
+			if (Model.AdmMode.isAdm && tbAdmin.Text != "")
+			{
+				Model.AdmMode.DeleteAdm(tbAdmin.Text);
+				mp_dialog.Refresh();
+			}
+		}
+	}
 }
