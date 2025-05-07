@@ -58,11 +58,11 @@ namespace ManagePassword
 		public void Refresh()
 		{
 
-			dgvDB.DataSource = Model.QueriesDB.Refresh();
+			/*dgvDB.DataSource = Model.QueriesDB.Refresh();
 			foreach (DataGridViewColumn column in dgvDB.Columns.Cast<DataGridViewColumn>().ToList())
 			{
 				if (column.Name == "Number")
-					column.Visible = false;
+					column.Visible = false; 
 				if (column.Name == "password_hash")
 				//Не идеальное решение
 				{
@@ -70,7 +70,8 @@ namespace ManagePassword
 					if (dgvDB.Rows.Count > 0)
 						RemoveColumns((DataTable)dgvDB.DataSource);
 				}
-			}
+			}*/
+
 
 		}
 		//Странное решение
