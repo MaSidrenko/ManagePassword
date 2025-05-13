@@ -18,19 +18,20 @@ namespace ManagePassword
 	{
 		static internal class QueriesDB
 		{
-			public static string BdMode = "Postgre";
-			static public void Insert(string tb_insert_open, string tb_insert_secret)
+			public static string BdMode = "SQLite";
+			static public List<PasswordRecrods> Insert(string tb_insert_open, string tb_insert_secret)
 			{
 				if (BdMode == "Postgre")
 				{
-					Model.PostgreSQL.Insert(tb_insert_open, tb_insert_secret);
+					return Model.PostgreSQL.Insert(tb_insert_open, tb_insert_secret);
 				}
 				else if (BdMode == "SQLite")
 				{
-					Model.SQLite.Insert(tb_insert_open, tb_insert_secret);
+					return Model.SQLite.Insert(tb_insert_open, tb_insert_secret);
 				}
+				return null;
 			}
-			static public DataTable Refresh()
+			static public List<PasswordRecrods> Refresh()
 			{
 				if (BdMode == "Postgre")
 				{
@@ -45,7 +46,7 @@ namespace ManagePassword
 					return null;
 				}
 			}
-			static public DataTable Find(string tb_find_open)
+			static public List<PasswordRecrods> Find(string tb_find_open)
 			{
 
 				if (BdMode == "Postgre")
@@ -61,43 +62,29 @@ namespace ManagePassword
 					return null;
 				}
 			}
-			static public void Del(string tb_del_id)
+			static public List<PasswordRecrods> Del(int tb_del_id)
 			{
 				if (BdMode == "Postgre")
 				{
-					Model.PostgreSQL.Delete(tb_del_id);
+					return Model.PostgreSQL.Delete(tb_del_id);
 				}
 				else if (BdMode == "SQLite")
 				{
-					Model.SQLite.Delete(tb_del_id);
+					return Model.SQLite.Delete(tb_del_id);
 				}
+				return null;
 			}
-			static public void Change(string tb_change_open, string tb_change_secret, string tb_change_id)
+			static public List<PasswordRecrods> Change(string tb_change_open, string tb_change_secret, string tb_change_id)
 			{
 				if (BdMode == "Postgre")
 				{
-					Model.PostgreSQL.Change(tb_change_id, tb_change_open, tb_change_secret);
+					return Model.PostgreSQL.Update(Convert.ToInt32(tb_change_id), tb_change_open, tb_change_secret);
 				}
 				else if (BdMode == "SQLite")
 				{
-					Model.SQLite.Change(tb_change_id, tb_change_open, tb_change_secret);
+					return Model.SQLite.Update(Convert.ToInt32(tb_change_id), tb_change_open, tb_change_secret);
 				}
-			}
-			static public DataTable Read(DataTable table)
-			{
-				if(BdMode == "Postgre")
-				{
-					return PostgreSQL.read_passwords(table);
-				}
-				else if(BdMode == "SQLite")
-				{
-					return SQLite.read_passwords(table);
-				}
-				else
-				{
-					return null;
-				}
-
+				return null;
 			}
 		}
 	}

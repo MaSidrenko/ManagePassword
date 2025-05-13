@@ -30,7 +30,7 @@ namespace ManagePassword
 			else if (Model.AdmMode.AuthenticateAdm(tbAdmin.Text))
 			{
 				mp_dialog.Refresh();
-				mp_dialog.SavePassword();
+				//mp_dialog.SavePassword();
 				//mp_dialog.HidePassword();
 				tbAdmin.Clear();
 				this.Close();
@@ -46,6 +46,7 @@ namespace ManagePassword
 			{
 				Model.AdmMode.ClearMasterPassword();
 				mp_dialog.Refresh();
+				
 				this.Close();
 			}
 		}

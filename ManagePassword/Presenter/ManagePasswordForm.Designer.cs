@@ -41,6 +41,9 @@
 			this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.FindBox = new System.Windows.Forms.TextBox();
 			this.timer1 = new System.Windows.Forms.Timer(this.components);
+			this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+			this.sQLiteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.postgreSQLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			((System.ComponentModel.ISupportInitialize)(this.dgvDB)).BeginInit();
 			this.contextMenuStrip1.SuspendLayout();
 			this.SuspendLayout();
@@ -60,9 +63,9 @@
 			this.dgvDB.Name = "dgvDB";
 			this.dgvDB.Size = new System.Drawing.Size(767, 473);
 			this.dgvDB.TabIndex = 0;
+			this.dgvDB.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dgvDB_CellFormatting);
 			this.dgvDB.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dgvDB_CellMouseClick);
 			this.dgvDB.CellMouseDoubleClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dgvDB_CellMouseDoubleClick);
-			this.dgvDB.ColumnHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dgvDB_ColumnHeaderMouseClick);
 			// 
 			// contextMenuStrip1
 			// 
@@ -73,52 +76,55 @@
             this.toolStripSeparator1,
             this.adminModeToolStripMenuItem,
             this.toolStripSeparator2,
+            this.postgreSQLToolStripMenuItem,
+            this.sQLiteToolStripMenuItem,
+            this.toolStripSeparator3,
             this.exitToolStripMenuItem});
 			this.contextMenuStrip1.Name = "contextMenuStrip1";
-			this.contextMenuStrip1.Size = new System.Drawing.Size(145, 126);
+			this.contextMenuStrip1.Size = new System.Drawing.Size(181, 198);
 			// 
 			// cmAdd
 			// 
 			this.cmAdd.Name = "cmAdd";
-			this.cmAdd.Size = new System.Drawing.Size(144, 22);
+			this.cmAdd.Size = new System.Drawing.Size(180, 22);
 			this.cmAdd.Text = "Add";
 			this.cmAdd.MouseDown += new System.Windows.Forms.MouseEventHandler(this.cmAdd_MouseDown);
 			// 
 			// deleteToolStripMenuItem
 			// 
 			this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-			this.deleteToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+			this.deleteToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
 			this.deleteToolStripMenuItem.Text = "Delete";
 			this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
 			// 
 			// refreshToolStripMenuItem
 			// 
 			this.refreshToolStripMenuItem.Name = "refreshToolStripMenuItem";
-			this.refreshToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+			this.refreshToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
 			this.refreshToolStripMenuItem.Text = "Refresh";
 			this.refreshToolStripMenuItem.Click += new System.EventHandler(this.refreshToolStripMenuItem_Click);
 			// 
 			// toolStripSeparator1
 			// 
 			this.toolStripSeparator1.Name = "toolStripSeparator1";
-			this.toolStripSeparator1.Size = new System.Drawing.Size(141, 6);
+			this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
 			// 
 			// adminModeToolStripMenuItem
 			// 
 			this.adminModeToolStripMenuItem.Name = "adminModeToolStripMenuItem";
-			this.adminModeToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+			this.adminModeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
 			this.adminModeToolStripMenuItem.Text = "Admin mode";
 			this.adminModeToolStripMenuItem.Click += new System.EventHandler(this.adminModeToolStripMenuItem_Click);
 			// 
 			// toolStripSeparator2
 			// 
 			this.toolStripSeparator2.Name = "toolStripSeparator2";
-			this.toolStripSeparator2.Size = new System.Drawing.Size(141, 6);
+			this.toolStripSeparator2.Size = new System.Drawing.Size(177, 6);
 			// 
 			// exitToolStripMenuItem
 			// 
 			this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-			this.exitToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+			this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
 			this.exitToolStripMenuItem.Text = "Exit";
 			this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
 			// 
@@ -145,6 +151,27 @@
 			this.timer1.Enabled = true;
 			this.timer1.Interval = 200;
 			this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+			// 
+			// toolStripSeparator3
+			// 
+			this.toolStripSeparator3.Name = "toolStripSeparator3";
+			this.toolStripSeparator3.Size = new System.Drawing.Size(177, 6);
+			// 
+			// sQLiteToolStripMenuItem
+			// 
+			this.sQLiteToolStripMenuItem.CheckOnClick = true;
+			this.sQLiteToolStripMenuItem.Name = "sQLiteToolStripMenuItem";
+			this.sQLiteToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.sQLiteToolStripMenuItem.Text = "SQLite";
+			this.sQLiteToolStripMenuItem.Click += new System.EventHandler(this.sQLiteToolStripMenuItem_Click);
+			// 
+			// postgreSQLToolStripMenuItem
+			// 
+			this.postgreSQLToolStripMenuItem.CheckOnClick = true;
+			this.postgreSQLToolStripMenuItem.Name = "postgreSQLToolStripMenuItem";
+			this.postgreSQLToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.postgreSQLToolStripMenuItem.Text = "PostgreSQL";
+			this.postgreSQLToolStripMenuItem.Click += new System.EventHandler(this.postgreSQLToolStripMenuItem_Click);
 			// 
 			// ManagePasswordForm
 			// 
@@ -179,6 +206,9 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
 		private System.Windows.Forms.Timer timer1;
+		private System.Windows.Forms.ToolStripMenuItem postgreSQLToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem sQLiteToolStripMenuItem;
+		private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
 	}
 }
 

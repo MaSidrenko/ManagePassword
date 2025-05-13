@@ -12,9 +12,11 @@ namespace ManagePassword
 {
     public partial class FormAdd : Form
     {
+        ManagePasswordForm mp_dialog;
         public FormAdd()
         {
             InitializeComponent();
+            mp_dialog = new ManagePasswordForm();
         }
 
         private void btnOk_Click(object sender, EventArgs e)
@@ -29,7 +31,7 @@ namespace ManagePassword
             }
             else
             {
-                Model.QueriesDB.Insert(tbServiceAdd.Text, tbPasswordAdd.Text);
+                mp_dialog.recrods = Model.QueriesDB.Insert(tbServiceAdd.Text, tbPasswordAdd.Text);
             }
         }
 

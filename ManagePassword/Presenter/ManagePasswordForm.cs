@@ -17,8 +17,7 @@ namespace ManagePassword
 	{
 		AdminForm adminMode_dialog = null;
 		DateTime time;
-		Dictionary<int, string> data;
-		BindingList<Entry> entries = new BindingList<Entry>();
+		public List<PasswordRecrods> recrods = Model.QueriesDB.Refresh();
 		public ManagePasswordForm()
 		{
 			InitializeComponent();
@@ -26,102 +25,22 @@ namespace ManagePassword
 			this.CenterToScreen();
 			Refresh();
 			time = DateTime.Now;
-			data = new Dictionary<int, string>();
-			//dgvDB.DataSource = entries;
-		}
-		public void ShowPassword()
-		{
-			for (int i = 0; i < dgvDB.Rows.Count - 1; i++)
-			{
-				if (dgvDB.Rows[i].IsNewRow) continue;
-				dgvDB.Rows[i].Cells[2].Value = entries[i].Password;
-			}
-		}
-		public void SavePassword()
-		{
-			if (Model.AdmMode.SetedAdmPassword)
-			{
-				//ShowPassword();
-				for (int i = 0; i < dgvDB.Rows.Count - 1; i++)
-				{
-					if (dgvDB.Rows[i].IsNewRow) continue;
-					string service = dgvDB.Rows[i].Cells[1].Value.ToString();
-					string password = dgvDB.Rows[i].Cells[2].Value.ToString();
-					entries[i].Service = service;
-					entries[i].Password = password;
-
-					//entries[i] = dgvDB.Rows[i].Cells[2].Value.ToString();
-				}
-				HidePassword();
-			}
+			dgvDB.Columns["Id"].Visible = false;
+			dgvDB.Columns["Password"].Visible = false;
+			sQLiteToolStripMenuItem.Checked = true;
 		}
 		public void Refresh()
 		{
-
-			/*dgvDB.DataSource = Model.QueriesDB.Refresh();
-			foreach (DataGridViewColumn column in dgvDB.Columns.Cast<DataGridViewColumn>().ToList())
+			recrods = Model.QueriesDB.Refresh();
+			dgvDB.DataSource = recrods;
+			if (AdmMode.isAdm)
 			{
-				if (column.Name == "Number")
-					column.Visible = false; 
-				if (column.Name == "password_hash")
-				//Не идеальное решение
-				{
-					dgvDB.DataSource = DecryptPasswordDB((DataTable)dgvDB.DataSource);
-					if (dgvDB.Rows.Count > 0)
-						RemoveColumns((DataTable)dgvDB.DataSource);
-				}
-			}*/
-
-
-		}
-		//Странное решение
-		public void RemoveColumns(DataTable table)
-		{
-			table.Columns.Remove("password_hash");
-			table.Columns.Remove("salt");
-			table.Columns.Remove("aes_iv");
-		}
-		//Не идеально написанный метод
-		public DataTable DecryptPasswordDB(DataTable table)
-		{
-			if (!table.Columns.Contains("Password"))
-			{
-				table.Columns.Add("Password", typeof(string));
+				dgvDB.Columns["Password"].Visible = true;
 			}
-			/*		//'Ходим' циклом по всей таблице 
-			foreach (DataRow row in table.Rows)
+			else if (!AdmMode.isAdm && dgvDB.Columns["Password"] != null)
 			{
-			Model.Cipher cihper = new Model.Cipher(Model.AdmMode.AdmPassword);
-				//Если в таблице DGV_DB нету колонки "Password"
-				//В авто-свойства Hash_string, Salt и AESiv из
-				//полей "password_hash", "salt" и "aes_iv" 
-				//присвается 'информация о шифровке'
-				//'информацию о шифровке' берем из БД
-				//Пометка: Возможно нарушения MVP, стоит задуматся над тем
-				//что бы вынести часть присваивания 'информации о шифровке' (Возможно в circle_query)
-				cihper.Hash_string = (byte[])row["password_hash"];
-				cihper.Salt = (byte[])row["salt"];
-				cihper.AESiv = (byte[])row["aes_iv"];
-
-
-				if (cihper.Hash_string != null && cihper.Salt != null && cihper.AESiv != null)
-				{
-
-					//TODO
-					//Получаем ключ для дешифровки
-					cihper.AES_key = cihper.DeriveKey(cihper.Input_string, cihper.Salt);
-
-					//Дешифруем поля с паролями
-					string decrypted = cihper.Decrypt(cihper.Hash_string, cihper.AES_key, cihper.AESiv);
-
-
-					//В строки колонки "Password" присваеваим дешифрованные значения
-					row["Password"] = decrypted;
-				}
-				//Тогда мы её добавляем
-
-			}*/
-			return QueriesDB.Read(table);
+				dgvDB.Columns["Password"].Visible = false;
+			}
 		}
 		private void dgvDB_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
 		{
@@ -147,8 +66,6 @@ namespace ManagePassword
 				if (formAdd_dialog.ShowDialog() == DialogResult.OK)
 				{
 					Refresh();
-					//HidePassword();
-					SavePassword();
 				}
 			}
 		}
@@ -164,16 +81,12 @@ namespace ManagePassword
 			{
 				string id = dgvDB.Rows[e.RowIndex].Cells[0].Value.ToString();
 				string Service = dgvDB.Rows[e.RowIndex].Cells[1].Value.ToString();
-				//string Password = dgvDB.Rows[e.RowIndex].Cells[2].Value.ToString();
-				//string Password = entries.Where(x => x.Key == e.RowIndex).Select(x => x.Value).FirstOrDefault();
-				string Password = entries[e.RowIndex].Password;
+				string Password = recrods[e.RowIndex].Password;
 				FormChange formChange_dialog = new FormChange();
 				formChange_dialog.Select(Service, Password, id);
 				if (formChange_dialog.ShowDialog() == DialogResult.OK)
 				{
-					//HidePassword();
 					Refresh();
-					SavePassword();
 				}
 			}
 			else
@@ -188,11 +101,9 @@ namespace ManagePassword
 		{
 			if (MessageBox.Show("Delete:\n" + "Service: " + dgvDB.Rows[dgvDB.CurrentCellAddress.Y].Cells[1].Value.ToString(), "Delete Message", MessageBoxButtons.OKCancel) == DialogResult.OK)
 			{
-				Model.QueriesDB.Del(dgvDB.Rows[dgvDB.CurrentCellAddress.Y].Cells[0].Value.ToString());
+				Model.QueriesDB.Del(Convert.ToInt32(dgvDB.Rows[dgvDB.CurrentCellAddress.Y].Cells[0].Value));
 				MessageBox.Show("Data has been deleted!");
 				Refresh();
-				//HidePassword();
-				SavePassword();
 			}
 			else
 			{
@@ -203,7 +114,6 @@ namespace ManagePassword
 		private void refreshToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			Refresh();
-			HidePassword();
 		}
 		private void adminModeToolStripMenuItem_Click(object sender, EventArgs e)
 		{
@@ -225,22 +135,10 @@ namespace ManagePassword
 			if (FindBox.TextLength >= 4 && FindBox.Text != "Search")
 			{
 				dgvDB.DataSource = Model.QueriesDB.Find(FindBox.Text);
-				foreach (DataGridViewColumn column in dgvDB.Columns.Cast<DataGridViewColumn>().ToList())
-				{
-					if (column.Name == "password_hash")
-					//Не идеальное решение
-					{
-						dgvDB.DataSource = DecryptPasswordDB((DataTable)dgvDB.DataSource);
-						if (dgvDB.Rows.Count > 0)
-							RemoveColumns((DataTable)dgvDB.DataSource);
-						HidePassword();
-					}
-				}
 			}
 			if (FindBox.TextLength == 0 && FindBox.Text != "Search")
 			{
 				Refresh();
-				HidePassword();
 			}
 		}
 
@@ -252,7 +150,6 @@ namespace ManagePassword
 				FindBox.ForeColor = Color.Black;
 			}
 		}
-
 		private void FindBox_Leave(object sender, EventArgs e)
 		{
 			if (FindBox.Text == "")
@@ -261,12 +158,10 @@ namespace ManagePassword
 				FindBox.ForeColor = Color.Silver;
 			}
 		}
-
 		private void exitToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			this.Close();
 		}
-
 		private void timer1_Tick(object sender, EventArgs e)
 		{
 			DateTime stopWatch = new DateTime();
@@ -276,26 +171,47 @@ namespace ManagePassword
 				if (Model.AdmMode.SetedAdmPassword)
 				{
 					Model.AdmMode.ClearMasterPassword();
+					dgvDB.Columns["Password"].Visible = false;
 					Refresh();
+
 				}
 			}
 		}
-		public void HidePassword()
+		private void dgvDB_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
 		{
-			if (Model.AdmMode.SetedAdmPassword)
+			if (e.ColumnIndex == 2)
 			{
-				for (int i = 0; i < dgvDB.Rows.Count - 1; i++)
+				if (e.Value != null)
 				{
-					dgvDB.Rows[i].Cells[2].Value = "******";
+					e.Value = new string('*', 5);
 				}
 			}
 		}
 
-		private void dgvDB_ColumnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+		private void postgreSQLToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			ShowPassword();
-			SavePassword();
-			//Refresh();	
+			if (sQLiteToolStripMenuItem.Checked)
+			{
+				sQLiteToolStripMenuItem.Checked = false;
+			}
+			Model.QueriesDB.BdMode = "Postgre";
+			if(postgreSQLToolStripMenuItem.Checked)
+			{
+				Refresh();	
+			}
+		}
+
+		private void sQLiteToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			if (postgreSQLToolStripMenuItem.Checked)
+			{
+				postgreSQLToolStripMenuItem.Checked = false ;
+			}
+			Model.QueriesDB.BdMode = "SQLite";
+			if(sQLiteToolStripMenuItem.Checked )
+			{
+				Refresh();
+			}
 		}
 	}
 }

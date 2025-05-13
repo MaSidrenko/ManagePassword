@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ManagePassword.Model.AppSide;
+using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using NpgsqlTypes;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
@@ -37,28 +39,23 @@ namespace ManagePassword
 
 					if (Model.QueriesDB.BdMode == "Postgre")
 					{
-						/*NpgsqlCommand cmd = new NpgsqlCommand($"INSERT INTO Admins(admin_name, password_hash, salt, aes_iv) VALUES(@username, @password_hash, @salt, @aes_iv)");
-
-						cmd.Parameters.AddWithValue("@username", admin);
-						cmd.Parameters.AddWithValue("@salt", cipher.Salt);
-						cmd.Parameters.AddWithValue("@password_hash", cipher.Hash_string);
-						cmd.Parameters.AddWithValue("@aes_iv", cipher.AESiv);
-						Model.PostgreSQL.single_query(cmd);*/
+						//DbContextOptionsBuilder<ApplicationContextPostgre> optionsBuilder = new DbContextOptionsBuilder<ApplicationContextPostgre>();
 						Model.PostgreSQL.create_adm_password(cipher, admin);
+					/*	using (ApplicationContextPostgre db = new ApplicationContextPostgre(optionsBuilder.UseNpgsql("Host=localhost;Username=postgres;Password=291305;Database=Passwords").Options))
+						{
+							Admin new_admin = new Admin
+							{
+								password_hash = cipher.Hash_string,
+								salt = cipher.Salt,
+								aes_iv = cipher.AESiv,
+							};
+							db.Admins.Add(new_admin);
+							db.SaveChanges();
+						}*/
 					}
 					else if (Model.QueriesDB.BdMode == "SQLite")
 					{
-						/*SQLiteCommand if_cmd = new SQLiteCommand("CREATE TABLE IF NOT EXISTS Admins(id INTEGER PRIMARY KEY CHECK(id = 1), admin_name TEXT, password_hash BLOB NOT NULL, salt BLOB, aes_iv BLOB NOT NULL)");
-						Model.SQLite.single_query(if_cmd);
 
-						SQLiteCommand cmd = new SQLiteCommand($"INSERT INTO Admins(id, admin_name, password_hash, salt, aes_iv) VALUES(@id, @username, @password_hash, @salt, @aes_iv)");
-						cmd.Parameters.AddWithValue("@id", 1);
-						cmd.Parameters.AddWithValue("@username", admin);
-						cmd.Parameters.AddWithValue("@salt", cipher.Salt);
-						cmd.Parameters.AddWithValue("@password_hash", cipher.Hash_string);
-						cmd.Parameters.AddWithValue("@aes_iv", cipher.AESiv);
-
-						Model.SQLite.single_query(cmd);*/
 						Model.SQLite.create_adm_password(cipher, admin);
 					}
 				}
@@ -76,6 +73,8 @@ namespace ManagePassword
 					if (Model.QueriesDB.BdMode == "Postgre")
 					{
 						decrypted_pass = Model.PostgreSQL.read_adm_password($"SELECT password_hash, salt, aes_iv FROM Admins WHERE admin_name = 'Admin'", password);
+						/*Cipher decrypt = new Cipher(password);
+						decrypted_pass = Model.PostgreSQL.read_adm_password1(password);*/
 					}
 					else if (Model.QueriesDB.BdMode == "SQLite")
 					{
