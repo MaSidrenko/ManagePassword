@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using Npgsql;
 using ManagePassword.Model.DBSide;
 using Microsoft.EntityFrameworkCore;
+using ManagePassword.Model.AppSide;
 
 namespace ManagePassword
 {
@@ -16,23 +17,23 @@ namespace ManagePassword
 	{
 		static internal class SQLite
 		{
-			static private DbContextOptionsBuilder<ApplicationContextSQLite> optionsBuilder = new DbContextOptionsBuilder<ApplicationContextSQLite>();
+			static private DbContextOptionsBuilder<ApplicationContext> optionsBuilder = new DbContextOptionsBuilder<ApplicationContext>();
 			const string CONN_STR = "Data Source = passwordCiphers.db;";
 			static public List<PasswordRecrods> Refresh()
 			{
 				List<PasswordRecrods> result = new List<PasswordRecrods>();
 				if (AdmMode.isAdm)
 				{
-					using (ApplicationContextSQLite db = new ApplicationContextSQLite(optionsBuilder.UseSqlite(CONN_STR).Options))
+					using (ApplicationContext db = new ApplicationContext(optionsBuilder.UseSqlite(CONN_STR).Options))
 					{
 						List<PasswordCipher> passwordCiphers = db.passwordCiphers.ToList();
-						result = read_password1(passwordCiphers);
+						result = read_passwords(passwordCiphers);
 						return result;
 					}
 				}
 				else
 				{
-					using (ApplicationContextSQLite db = new ApplicationContextSQLite(optionsBuilder.UseSqlite(CONN_STR).Options))
+					using (ApplicationContext db = new ApplicationContext(optionsBuilder.UseSqlite(CONN_STR).Options))
 					{
 						List<PasswordRecrods> data = db.passwordCiphers
 							.Select(_ => new PasswordRecrods
@@ -48,7 +49,7 @@ namespace ManagePassword
 			}
 			static public List<PasswordRecrods> Insert(string service, string password)
 			{
-				using (ApplicationContextSQLite db = new ApplicationContextSQLite(optionsBuilder.UseSqlite(CONN_STR).Options))
+				using (ApplicationContext db = new ApplicationContext(optionsBuilder.UseNpgsql(CONN_STR).Options))
 				{
 					Cipher cipher = new Cipher(password);
 					cipher.GenerateKeys();
@@ -70,12 +71,12 @@ namespace ManagePassword
 			static public List<PasswordRecrods> Find(string service)
 			{
 				List<PasswordRecrods> result = new List<PasswordRecrods>();
-				using (ApplicationContextSQLite db = new ApplicationContextSQLite(optionsBuilder.UseSqlite(CONN_STR).Options))
+				using (ApplicationContext db = new ApplicationContext(optionsBuilder.UseNpgsql(CONN_STR).Options	))
 				{
 					if (AdmMode.isAdm)
 					{
 						List<PasswordCipher> passwordCipher = db.passwordCiphers.Where(_ => _.Service.StartsWith(service)).ToList();
-						result = read_password1(passwordCipher);
+						result = read_passwords(passwordCipher);
 						return result;
 					}
 					else if (!AdmMode.isAdm)
@@ -95,7 +96,7 @@ namespace ManagePassword
 			}
 			static public List<PasswordRecrods> Delete(int delItem)
 			{
-				using (ApplicationContextSQLite db = new ApplicationContextSQLite(optionsBuilder.UseSqlite(CONN_STR).Options))
+				using (ApplicationContext db = new ApplicationContext(optionsBuilder.UseNpgsql(CONN_STR).Options))
 				{
 					List<PasswordRecrods> passwords;
 					PasswordCipher password = db.passwordCiphers.Find(delItem);
@@ -114,7 +115,7 @@ namespace ManagePassword
 					Cipher cipher = new Cipher(password);
 					cipher.GenerateKeys();
 					cipher.Encrypt();
-					using (ApplicationContextSQLite db = new ApplicationContextSQLite(optionsBuilder.UseSqlite(CONN_STR).Options))
+					using (ApplicationContext db = new ApplicationContext(optionsBuilder.UseNpgsql(CONN_STR).Options))
 					{
 						PasswordCipher CiphPass = db.passwordCiphers.Find(id);
 						if (CiphPass == null)
@@ -155,40 +156,49 @@ namespace ManagePassword
 					MessageBox.Show(ex.Message);
 				}
 			}
-			static public string read_adm_password(string query, string password)
+			static public string read_adm_password(string cihper_password)
 			{
-				Cipher cipher = new Cipher(password);
-				SQLiteConnection conn_DB = new SQLiteConnection("Data Source = admin.db;");
-				SQLiteCommand cmd = new SQLiteCommand(query, conn_DB);
-				conn_DB.Open();
+				string password = "";
+				Cipher decrypt = new Cipher(cihper_password);
 
-				SQLiteDataReader reader = cmd.ExecuteReader();
-				if (reader.Read())
+				using (ApplicationContext db = new ApplicationContext(optionsBuilder.UseSqlite(CONN_STR).Options))
 				{
-					cipher.Hash_string = (byte[])reader["password_hash"];
-					cipher.Salt = (byte[])reader["salt"];
-					cipher.AESiv = (byte[])reader["aes_iv"];
+					List<Admin> admins = db.Admins.ToList();
+					foreach (Admin admin in admins)
+					{
+						decrypt.Salt = admin.salt;
+						decrypt.Hash_string = admin.password_hash;
+						decrypt.AESiv = admin.aes_iv;
+					}
+					decrypt.AES_key = decrypt.DeriveKey(cihper_password, decrypt.Salt);
+					password = decrypt.Decrypt(decrypt.Hash_string, decrypt.AES_key, decrypt.AESiv);
 				}
-				cipher.AES_key = cipher.DeriveKey(password, cipher.Salt);
-				reader.Close();
-				cmd.Dispose();
-				conn_DB.Close();
-				conn_DB.Dispose();
-				return cipher.Decrypt(cipher.Hash_string, cipher.AES_key, cipher.AESiv);
+				return password;
+			}
+			static public void delete_adm_password()
+			{
+				DbContextOptionsBuilder<ApplicationContext> optionsBuilder = new DbContextOptionsBuilder<ApplicationContext>();
+				using (ApplicationContext db = new ApplicationContext(optionsBuilder.UseNpgsql(CONN_STR).Options))
+				{
+					Admin admin = db.Admins.Find("Admin");
+					db.Admins.Remove(admin);
+					db.SaveChanges();
+				}
 			}
 			static public void create_adm_password(Cipher cipher, string admin)
 			{
-				SQLiteCommand if_cmd = new SQLiteCommand("CREATE TABLE IF NOT EXISTS Admins(id INTEGER PRIMARY KEY CHECK(id = 1), admin_name TEXT, password_hash BLOB NOT NULL, salt BLOB, aes_iv BLOB NOT NULL)");
-				Model.SQLite.single_query(if_cmd);
+				using (ApplicationContext db = new ApplicationContext(optionsBuilder.UseSqlite(CONN_STR).Options))
+				{
+					Admin new_adm = new Admin
+					{
+						password_hash = cipher.Hash_string,
+						salt = cipher.Salt,
+						aes_iv = cipher.AESiv,
+					};
+					db.Admins.Add(new_adm);
+					db.SaveChanges();
+				}
 
-				SQLiteCommand cmd = new SQLiteCommand($"INSERT INTO Admins(id, admin_name, password_hash, salt, aes_iv) VALUES(@id, @username, @password_hash, @salt, @aes_iv)");
-				cmd.Parameters.AddWithValue("@id", 1);
-				cmd.Parameters.AddWithValue("@username", admin);
-				cmd.Parameters.AddWithValue("@salt", cipher.Salt);
-				cmd.Parameters.AddWithValue("@password_hash", cipher.Hash_string);
-				cmd.Parameters.AddWithValue("@aes_iv", cipher.AESiv);
-
-				Model.SQLite.single_query(cmd);
 			}
 			static public int HaveAdmPass()
 			{
@@ -212,7 +222,7 @@ namespace ManagePassword
 				}
 				return count;
 			}
-			static private List<PasswordRecrods> read_password1(List<PasswordCipher> passwordCiphers)
+			static private List<PasswordRecrods> read_passwords(List<PasswordCipher> passwordCiphers)
 			{
 				List<PasswordRecrods> result = new List<PasswordRecrods>();
 				Cipher decrypt = new Cipher(AdmMode.UnsaveGetAdmPassword());
@@ -233,28 +243,6 @@ namespace ManagePassword
 					});
 				}
 				return result;
-			}
-			//Старнно написанный метод
-			//Используется для получения только для получения дешифрованного солбца пароля
-			static public DataTable read_passwords(DataTable table)
-			{
-				string decrypted = "";
-				Model.Cipher cihper = new Model.Cipher(AdmMode.UnsaveGetAdmPassword());
-				foreach (DataRow row in table.Rows)
-				{
-					cihper.Hash_string = (byte[])row["password_hash"];
-					cihper.Salt = (byte[])row["salt"];
-					cihper.AESiv = (byte[])row["aes_iv"];
-
-
-					if (cihper.Hash_string != null && cihper.Salt != null && cihper.AESiv != null)
-					{
-						cihper.AES_key = cihper.DeriveKey(cihper.Input_string, cihper.Salt);
-						decrypted = cihper.Decrypt(cihper.Hash_string, cihper.AES_key, cihper.AESiv);
-						row["password"] = decrypted;
-					}
-				}
-				return table;
 			}
 		}
 	}

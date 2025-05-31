@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ManagePassword.Model.AppSide;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using NpgsqlTypes;
@@ -16,7 +17,7 @@ namespace ManagePassword
 	{
 		static internal class PostgreSQL
 		{
-			static DbContextOptionsBuilder<ApplicationContextPostgre> optionsBuilder = new DbContextOptionsBuilder<ApplicationContextPostgre>();
+			static DbContextOptionsBuilder<ApplicationContext> optionsBuilder = new DbContextOptionsBuilder<ApplicationContext>();
 
 			const string CONN_STR = "Host=localhost;Username=postgres;Password=291305;Database=Passwords";
 			static public List<PasswordRecrods> Refresh()
@@ -26,7 +27,7 @@ namespace ManagePassword
 				if (AdmMode.isAdm)
 				{
 
-					using (ApplicationContextPostgre db = new ApplicationContextPostgre(optionsBuilder.UseNpgsql(CONN_STR).Options))
+					using (ApplicationContext db = new ApplicationContext(optionsBuilder.UseNpgsql(CONN_STR).Options))
 					{
 						List<PasswordCipher> passwordsCihper = db
 							.passwordCiphers
@@ -37,7 +38,7 @@ namespace ManagePassword
 				}
 				else
 				{
-					using (ApplicationContextPostgre db = new ApplicationContextPostgre(optionsBuilder.UseNpgsql(CONN_STR).Options))
+					using (ApplicationContext db = new ApplicationContext(optionsBuilder.UseNpgsql(CONN_STR).Options))
 					{
 						List<PasswordRecrods> data = db
 						.passwordCiphers
@@ -54,7 +55,7 @@ namespace ManagePassword
 			}
 			static public List<PasswordRecrods> Insert(string service, string password)
 			{
-				using (ApplicationContextPostgre db = new ApplicationContextPostgre(optionsBuilder.UseNpgsql(CONN_STR).Options))
+				using (ApplicationContext db = new ApplicationContext(optionsBuilder.UseNpgsql(CONN_STR).Options))
 				{
 					Cipher cipher = new Cipher(password);
 					cipher.GenerateKeys();
@@ -76,7 +77,7 @@ namespace ManagePassword
 			static public List<PasswordRecrods> Find(string Service)
 			{
 				List<PasswordRecrods> result = new List<PasswordRecrods>();
-				using (ApplicationContextPostgre db = new ApplicationContextPostgre(optionsBuilder.UseNpgsql(CONN_STR).Options))
+				using (ApplicationContext db = new ApplicationContext(optionsBuilder.UseNpgsql(CONN_STR).Options))
 				{
 
 					if (AdmMode.isAdm)
@@ -106,7 +107,7 @@ namespace ManagePassword
 			}
 			static public List<PasswordRecrods> Delete(int delItem)
 			{
-				using (ApplicationContextPostgre db = new ApplicationContextPostgre(optionsBuilder.UseNpgsql(CONN_STR).Options))
+				using (ApplicationContext db = new ApplicationContext(optionsBuilder.UseNpgsql(CONN_STR).Options))
 				{
 					List<PasswordRecrods> passwords;
 					PasswordCipher password = db.passwordCiphers.Find(delItem);
@@ -125,7 +126,7 @@ namespace ManagePassword
 					Cipher cipher = new Cipher(password);
 					cipher.GenerateKeys();
 					cipher.Encrypt();
-					using (ApplicationContextPostgre db = new ApplicationContextPostgre(optionsBuilder.UseNpgsql(CONN_STR).Options))
+					using (ApplicationContext db = new ApplicationContext(optionsBuilder.UseNpgsql(CONN_STR).Options))
 					{
 						PasswordCipher CihpPass = db
 							.passwordCiphers
@@ -148,73 +149,47 @@ namespace ManagePassword
 					return Refresh();
 				}
 			}
-			static public void single_query(NpgsqlCommand cmd)
+			static public void delete_adm_password()
 			{
-				try
+				DbContextOptionsBuilder<ApplicationContext> optionsBuilder = new DbContextOptionsBuilder<ApplicationContext>();
+				using (ApplicationContext db = new ApplicationContext(optionsBuilder.UseNpgsql(CONN_STR).Options))
 				{
-					NpgsqlConnection conn_DB = new NpgsqlConnection("Host=localhost;Username=postgres;Password=291305;Database=postgres");
-					conn_DB.Open();
-
-					cmd.Connection = conn_DB;
-					cmd.ExecuteNonQuery();
-
-					cmd.Dispose();
-					conn_DB.Close();
-					conn_DB.Dispose();
-				}
-				catch (Exception e)
-				{
-					MessageBox.Show(e.Message);
+					Admin admin = db.Admins.Find("Admin");
+					db.Admins.Remove(admin);
+					db.SaveChanges();
 				}
 			}
 			static public void create_adm_password(Cipher cipher, string admin)
 			{
-				NpgsqlCommand cmd = new NpgsqlCommand($"INSERT INTO Admins(admin_name, password_hash, salt, aes_iv) VALUES(@username, @password_hash, @salt, @aes_iv)");
-
-				cmd.Parameters.AddWithValue("@username", admin);
-				cmd.Parameters.AddWithValue("@salt", cipher.Salt);
-				cmd.Parameters.AddWithValue("@password_hash", cipher.Hash_string);
-				cmd.Parameters.AddWithValue("@aes_iv", cipher.AESiv);
-				Model.PostgreSQL.single_query(cmd);
+				using (ApplicationContext db = new ApplicationContext(optionsBuilder.UseNpgsql(CONN_STR).Options))
+				{
+					Admin new_adm = new Admin
+					{
+						password_hash = cipher.Hash_string,
+						salt = cipher.Salt,
+						aes_iv = cipher.AESiv,
+					};
+					db.Admins.Add(new_adm);
+					db.SaveChanges();
+				}
 			}
-			static public string read_adm_password1(string cihper_passowrd)
+			static public string read_adm_passwords(string cihper_passowrd)
 			{
 				string password = "";
 				Cipher decrypt = new Cipher(cihper_passowrd);
-				using (ApplicationContextPostgre db = new ApplicationContextPostgre(optionsBuilder.UseNpgsql(CONN_STR).Options))
+				using (ApplicationContext db = new ApplicationContext(optionsBuilder.UseNpgsql(CONN_STR).Options))
 				{
-					List<PasswordCipher> passwordsCihper = db.passwordCiphers.ToList();
-					foreach (PasswordCipher pass in passwordsCihper)
+					List<Admin> admins = db.Admins.ToList();
+					foreach (Admin admin in admins)
 					{
-						decrypt.Salt = pass.Salt;
-						decrypt.Hash_string = pass.Password_hash;
-						decrypt.AESiv = pass.Aes_iv;
+						decrypt.Salt = admin.salt;
+						decrypt.Hash_string = admin.password_hash;
+						decrypt.AESiv = admin.aes_iv;
 					}
 					decrypt.AES_key = decrypt.DeriveKey(cihper_passowrd, decrypt.Salt);
 					password = decrypt.Decrypt(decrypt.Hash_string, decrypt.AES_key, decrypt.AESiv);
 				}
 				return password;
-			}
-			static public string read_adm_password(string query, string cihper_string)
-			{
-				Cipher cipher = new Cipher(cihper_string);
-				NpgsqlConnection conn_DB = new NpgsqlConnection("Host=localhost;Username=postgres;Password=291305;Database=postgres");
-				NpgsqlCommand cmd = new NpgsqlCommand(query, conn_DB);
-				conn_DB.Open();
-
-				NpgsqlDataReader reader = cmd.ExecuteReader();
-				if (reader.Read())
-				{
-					cipher.Salt = (byte[])reader["salt"];
-					cipher.Hash_string = (byte[])reader["password_hash"];
-					cipher.AESiv = (byte[])reader["aes_iv"];
-				}
-				cipher.AES_key = cipher.DeriveKey(cihper_string, cipher.Salt);
-				reader.Close();
-				cmd.Dispose();
-				conn_DB.Close();
-				conn_DB.Dispose();
-				return cipher.Decrypt(cipher.Hash_string, cipher.AES_key, cipher.AESiv);
 			}
 			static public int HaveAdmPass()
 			{

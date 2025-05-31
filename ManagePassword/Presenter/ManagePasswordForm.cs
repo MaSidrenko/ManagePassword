@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using ManagePassword.Model;
 using Npgsql;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.IO;
 
 namespace ManagePassword
 {
@@ -183,35 +186,40 @@ namespace ManagePassword
 			{
 				if (e.Value != null)
 				{
-					e.Value = new string('*', 5);
+					e.Value = new string('*', 15);
 				}
 			}
 		}
 
 		private void postgreSQLToolStripMenuItem_Click(object sender, EventArgs e)
 		{
+
 			if (sQLiteToolStripMenuItem.Checked)
 			{
 				sQLiteToolStripMenuItem.Checked = false;
 			}
-			Model.QueriesDB.BdMode = "Postgre";
-			if(postgreSQLToolStripMenuItem.Checked)
+
+			Model.QueriesDB.providerStr = "PostgreSQL";
+			if (postgreSQLToolStripMenuItem.Checked)
 			{
-				Refresh();	
+				Refresh();
 			}
+			postgreSQLToolStripMenuItem.Checked = true;
 		}
 
 		private void sQLiteToolStripMenuItem_Click(object sender, EventArgs e)
 		{
+
 			if (postgreSQLToolStripMenuItem.Checked)
 			{
-				postgreSQLToolStripMenuItem.Checked = false ;
+				postgreSQLToolStripMenuItem.Checked = false;
 			}
-			Model.QueriesDB.BdMode = "SQLite";
-			if(sQLiteToolStripMenuItem.Checked )
+			Model.QueriesDB.providerStr = "SQLite";
+			if (sQLiteToolStripMenuItem.Checked)
 			{
 				Refresh();
 			}
+			sQLiteToolStripMenuItem.Checked = true;
 		}
 	}
 }

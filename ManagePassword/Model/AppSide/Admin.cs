@@ -13,7 +13,7 @@ namespace ManagePassword.Model.AppSide
 		[Key]
 		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
 		public int Id { get; set; }
-		public string name = "Admin";
+		public string Name { get; set; } = "Admin";
 		public byte[] password_hash { get; set; }
 		public byte[] salt { get; set; }
 		public byte[] aes_iv { get; set; }

@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace ManagePassword.Migrations
 {
-    public partial class AdminInitial : Migration
+    public partial class AdmInit : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -14,7 +14,7 @@ namespace ManagePassword.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    name = table.Column<string>(nullable: true),
+                    Name = table.Column<string>(nullable: true, defaultValue: "Admin"),
                     password_hash = table.Column<byte[]>(nullable: true),
                     salt = table.Column<byte[]>(nullable: true),
                     aes_iv = table.Column<byte[]>(nullable: true)
@@ -25,9 +25,9 @@ namespace ManagePassword.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Admins_Id",
+                name: "IX_Admins_Name",
                 table: "Admins",
-                column: "Id",
+                column: "Name",
                 unique: true);
         }
 

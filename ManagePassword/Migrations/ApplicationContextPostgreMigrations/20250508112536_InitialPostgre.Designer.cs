@@ -9,7 +9,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace ManagePassword.Migrations
 {
-    [DbContext(typeof(ApplicationContextPostgre))]
+    [DbContext(typeof(ApplicationContext))]
     [Migration("20250508112536_InitialPostgre")]
     partial class InitialPostgre
     {

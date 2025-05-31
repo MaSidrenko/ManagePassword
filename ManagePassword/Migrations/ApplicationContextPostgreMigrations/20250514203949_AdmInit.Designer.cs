@@ -9,9 +9,9 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace ManagePassword.Migrations
 {
-    [DbContext(typeof(ApplicationContextPostgre))]
-    [Migration("20250508121236_AdminInitial")]
-    partial class AdminInitial
+    [DbContext(typeof(ApplicationContext))]
+    [Migration("20250514203949_AdmInit")]
+    partial class AdmInit
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -28,6 +28,11 @@ namespace ManagePassword.Migrations
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
+                    b.Property<string>("Name")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValue("Admin");
+
                     b.Property<byte[]>("aes_iv")
                         .HasColumnType("bytea");
 
@@ -39,7 +44,7 @@ namespace ManagePassword.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Id")
+                    b.HasIndex("Name")
                         .IsUnique();
 
                     b.ToTable("Admins");

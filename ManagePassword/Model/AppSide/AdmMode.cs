@@ -37,10 +37,10 @@ namespace ManagePassword
 					cipher.GenerateKeys(password);
 					cipher.Encrypt();
 
-					if (Model.QueriesDB.BdMode == "Postgre")
+					if (Model.QueriesDB.providerStr == "PostgreSQL")
 					{
-						//DbContextOptionsBuilder<ApplicationContextPostgre> optionsBuilder = new DbContextOptionsBuilder<ApplicationContextPostgre>();
 						Model.PostgreSQL.create_adm_password(cipher, admin);
+						
 					/*	using (ApplicationContextPostgre db = new ApplicationContextPostgre(optionsBuilder.UseNpgsql("Host=localhost;Username=postgres;Password=291305;Database=Passwords").Options))
 						{
 							Admin new_admin = new Admin
@@ -53,9 +53,8 @@ namespace ManagePassword
 							db.SaveChanges();
 						}*/
 					}
-					else if (Model.QueriesDB.BdMode == "SQLite")
+					else if (Model.QueriesDB.providerStr == "SQLite")
 					{
-
 						Model.SQLite.create_adm_password(cipher, admin);
 					}
 				}
@@ -70,15 +69,13 @@ namespace ManagePassword
 				{
 					AdmPassword = password;
 					string decrypted_pass = "";
-					if (Model.QueriesDB.BdMode == "Postgre")
+					if (Model.QueriesDB.providerStr == "PostgreSQL")
 					{
-						decrypted_pass = Model.PostgreSQL.read_adm_password($"SELECT password_hash, salt, aes_iv FROM Admins WHERE admin_name = 'Admin'", password);
-						/*Cipher decrypt = new Cipher(password);
-						decrypted_pass = Model.PostgreSQL.read_adm_password1(password);*/
+						decrypted_pass = Model.PostgreSQL.read_adm_passwords(password);
 					}
-					else if (Model.QueriesDB.BdMode == "SQLite")
+					else if (Model.QueriesDB.providerStr == "SQLite")
 					{
-						decrypted_pass = Model.SQLite.read_adm_password($"SELECT password_hash, salt, aes_iv FROM Admins WHERE admin_name = 'Admin'", password);
+						decrypted_pass = Model.SQLite.read_adm_password(password);
 					}
 					if (decrypted_pass == password)
 					{
@@ -99,19 +96,13 @@ namespace ManagePassword
 				if (isAdm)
 				{
 					string delteQuery = "DELETE FROM Admins WHERE admin_name = 'Admin'";
-					if (Model.QueriesDB.BdMode == "Postgre")
+					if (Model.QueriesDB.providerStr == "PostgreSQL")
 					{
-						NpgsqlCommand cmd = new NpgsqlCommand(delteQuery);
-
-						Model.PostgreSQL.single_query(cmd);
-						cmd.Dispose();
+						Model.PostgreSQL.delete_adm_password();
 					}
-					else if (Model.QueriesDB.BdMode == "SQLite")
+					else if (Model.QueriesDB.providerStr == "SQLite")
 					{
-						SQLiteCommand cmd = new SQLiteCommand(delteQuery);
-
-						Model.SQLite.single_query(cmd);
-						cmd.Dispose();
+						Model.SQLite.delete_adm_password();
 					}
 					ClearMasterPassword();
 				}
@@ -125,11 +116,11 @@ namespace ManagePassword
 			public static bool HaveAdm()
 			{
 				int count = 0;
-				if (Model.QueriesDB.BdMode == "Postgre")
+				if (Model.QueriesDB.providerStr == "PostgreSQL")
 				{
 					count = Model.PostgreSQL.HaveAdmPass();
 				}
-				if (Model.QueriesDB.BdMode == "SQLite")
+				if (Model.QueriesDB.providerStr == "SQLite")
 				{
 					count = Model.SQLite.HaveAdmPass();
 				}
